@@ -1,30 +1,48 @@
 <?php
 
-use Laminas\Diactoros\Response\HtmlResponse;
+use App\Controller\AboutAction;
+use App\Controller\BlogAction;
+use App\Controller\BlogShowAction;
+use App\Controller\IndexAction;
+use Framework\Http\Router\Resolver;
+use Framework\Http\Router\RouteCollection;
+use Framework\Http\Router\Router;
+use Laminas\Diactoros\Response\JsonResponse;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 
 chdir(dirname(__DIR__));
 require_once  'vendor/autoload.php';
 
-//$name = '/blog/4/alex';
-//if (preg_match('#^/blog/(?P<id>\d+)/(?P<name>[a-z]+)$#i', $name, $matches)) {
-//    var_dump($matches);
-//} else {
-//    echo 'not match' . PHP_EOL;
-//}
-//die;
-
 ### Initialization
 
+$routes = new RouteCollection();
+
+$routes->get('home', '/', IndexAction::class);
+$routes->get('about', '/about', AboutAction::class);
+$routes->get('blog', '/blog', BlogAction::class);
+$routes->get('blog_show', '/blog/{id}', BlogShowAction::class, ['id' => '\d+']);
+
+### Running
+
+$router = new Router($routes);
+$resolver = new Resolver();
 $request = ServerRequestFactory::fromGlobals();
 
-### Action
+try {
 
-$name = $request->getQueryParams()['name'] ?? 'Guest';
+    $result = $router->match($request);
+    foreach ($result->getAttributes() as $attribute => $value) {
+        $request = $request->withAttribute($attribute, $value);
+    }
+    $handler = $resolver->resolver($result->getHandler());
+    $response = $handler($request);
 
-$response = (new HtmlResponse('Hello, ' . $name . '!' . PHP_EOL))
-    ->withHeader('X-Developer', 'Kyznetsov');
+} catch (Exception $e) {
+    return new JsonResponse(['Undefined page'], 404);
+}
+
+$response = $response->withHeader('X-Developer', 'Kyznetsov');
 
 ### Sending
 
