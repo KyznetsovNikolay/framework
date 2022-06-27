@@ -6,7 +6,7 @@ use App\Controller\BlogShowAction;
 use App\Controller\IndexAction;
 use Aura\Router\RouterContainer;
 use Framework\Http\Router\AuraRouterAdapter;
-use Framework\Http\Router\Resolver;
+use Framework\Http\Resolver;
 use Laminas\Diactoros\Response\JsonResponse;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
