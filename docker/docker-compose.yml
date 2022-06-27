@@ -1,0 +1,41 @@
+version: '3.4'
+services:
+
+  # Nginx
+  web:
+    container_name: framework.web
+    build: ./nginx
+    ports:
+      - ${NGINX_HOST_HTTP_PORT:-8070}:80
+    depends_on:
+      - app
+    restart: always
+    volumes:
+      - ./../:/www/app
+
+  # PHP-fpm
+  app:
+    container_name: framework.app
+    build: ./php-fpm
+    depends_on:
+      - mysql
+    user: ${UID:-1000}:${GID:-1000}
+    volumes:
+      - ./../:/www/app
+    working_dir: /www/app
+
+  # MySQL
+  mysql:
+    container_name: framework.mysql
+    image: mysql:8.0.17
+    ports:
+      - ${MYSQL_PORT:-33063}:3306
+    volumes:
+      - ./mysql/.mysql:/var/lib/mysql
+      - ./mysql/conf.d:/etc/mysql/conf.d
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      TZ: "UTC"
