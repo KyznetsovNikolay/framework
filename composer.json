@@ -8,7 +8,8 @@
   },
   "require": {
     "laminas/laminas-diactoros": "^2.11",
-    "laminas/laminas-httphandlerrunner": "^2.1"
+    "laminas/laminas-httphandlerrunner": "^2.1",
+    "aura/router": "^3.2"
   },
   "require-dev": {
     "phpunit/phpunit": "^9.5"

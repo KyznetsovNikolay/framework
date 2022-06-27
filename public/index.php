@@ -4,9 +4,9 @@ use App\Controller\AboutAction;
 use App\Controller\BlogAction;
 use App\Controller\BlogShowAction;
 use App\Controller\IndexAction;
+use Aura\Router\RouterContainer;
+use Framework\Http\Router\AuraRouterAdapter;
 use Framework\Http\Router\Resolver;
-use Framework\Http\Router\RouteCollection;
-use Framework\Http\Router\Router;
 use Laminas\Diactoros\Response\JsonResponse;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
@@ -16,16 +16,17 @@ require_once  'vendor/autoload.php';
 
 ### Initialization
 
-$routes = new RouteCollection();
+$aura = new RouterContainer();
+$routes = $aura->getMap();
 
 $routes->get('home', '/', IndexAction::class);
 $routes->get('about', '/about', AboutAction::class);
 $routes->get('blog', '/blog', BlogAction::class);
-$routes->get('blog_show', '/blog/{id}', BlogShowAction::class, ['id' => '\d+']);
+$routes->get('blog_show', '/blog/{id}', BlogShowAction::class)->tokens(['id' => '\d+']);
 
 ### Running
 
-$router = new Router($routes);
+$router = new AuraRouterAdapter($aura);
 $resolver = new Resolver();
 $request = ServerRequestFactory::fromGlobals();
 

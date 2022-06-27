@@ -8,7 +8,7 @@ use Framework\Http\Router\Exception\RequestNotMatchedException;
 use Framework\Http\Router\Exception\RouteNotFoundException;
 use Psr\Http\Message\ServerRequestInterface;
 
-class Router
+class Router implements RouterInterface
 {
     /**
      * @var RouteCollection
