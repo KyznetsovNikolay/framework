@@ -44,7 +44,7 @@ $routes->get('blog_show', '/blog/{id}', ShowAction::class)->tokens(['id' => '\d+
 $router = new AuraRouterAdapter($aura);
 $resolver = new Resolver();
 $request = ServerRequestFactory::fromGlobals();
-$app = new Application($resolver);
+$app = new Application($resolver, new NotFound());
 
 $app->pipe($resolver->resolve(Profiler::class));
 
@@ -58,7 +58,7 @@ try {
 
 } catch (Exception $e) {}
 
-$response = $app($request, new NotFound());
+$response = $app->run($request);
 
 $response = $response->withHeader('X-Developer', 'Kyznetsov');
 
