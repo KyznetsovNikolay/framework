@@ -4,10 +4,19 @@ declare(strict_types=1);
 
 namespace Framework\Http;
 
+use Psr\Http\Message\ServerRequestInterface;
+
 class Resolver
 {
-    public function resolver($handler): callable
+    public function resolve($handler): callable
     {
-        return \is_string($handler) ? new $handler : $handler;
+        if (\is_string($handler)) {
+            return function (ServerRequestInterface $request, callable $next) use ($handler) {
+                $object = new $handler();
+                return $object($request, $next);
+            };
+        }
+
+        return $handler;
     }
 }

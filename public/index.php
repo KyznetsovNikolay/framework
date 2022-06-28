@@ -8,6 +8,7 @@ use App\Controller\IndexAction as HomeAction;
 use Aura\Router\RouterContainer;
 use Framework\Http\Router\AuraRouterAdapter;
 use Framework\Http\Resolver;
+use Framework\Http\Router\Handler\NotFound;
 use Framework\Middleware\Decorator\Auth;
 use Framework\Middleware\Decorator\Profiler;
 use Framework\Middleware\Pipeline\Pipeline;
@@ -35,17 +36,10 @@ $auth = new Auth($params['users']);
 $routes->get('home', '/', HomeAction::class);
 $routes->get('about', '/about', AboutAction::class);
 $routes->get('blog', '/blog', IndexAction::class);
-$routes->get('cabinet', '/cabinet', function(ServerRequestInterface $request) use ($params) {
-    $pipeline = new Pipeline();
-
-    $pipeline->pipe(new Profiler());
-    $pipeline->pipe(new Auth($params['users']));
-    $pipeline->pipe(new CabinetAction());
-
-    return $pipeline($request, function () {
-        return new HtmlResponse('Undefined page', 404);
-    });
-});
+$routes->get('cabinet', '/cabinet', [
+    new Auth($params['users']),
+    CabinetAction::class,
+]);
 $routes->get('blog_show', '/blog/{id}', ShowAction::class)->tokens(['id' => '\d+']);
 
 ### Running
@@ -53,6 +47,9 @@ $routes->get('blog_show', '/blog/{id}', ShowAction::class)->tokens(['id' => '\d+
 $router = new AuraRouterAdapter($aura);
 $resolver = new Resolver();
 $request = ServerRequestFactory::fromGlobals();
+$pipeline = new Pipeline();
+
+$pipeline->pipe($resolver->resolve(Profiler::class));
 
 try {
 
@@ -60,12 +57,14 @@ try {
     foreach ($result->getAttributes() as $attribute => $value) {
         $request = $request->withAttribute($attribute, $value);
     }
-    $handler = $resolver->resolver($result->getHandler());
-    $response = $handler($request);
+    $handlers = $result->getHandler();
+    foreach (is_array($handlers) ? $handlers : [$handlers] as $handler) {
+        $pipeline->pipe($resolver->resolve($handler));
+    }
 
-} catch (Exception $e) {
-    return new JsonResponse(['Undefined page'], 404);
-}
+} catch (Exception $e) {}
+
+$response = $pipeline($request, new NotFound());
 
 $response = $response->withHeader('X-Developer', 'Kyznetsov');
 
