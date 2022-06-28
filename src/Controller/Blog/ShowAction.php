@@ -12,6 +12,7 @@ class ShowAction
 {
     public function __invoke(ServerRequestInterface $request, callable $next): Response
     {
+        throw new \Exception('tata');
         $id = $request->getAttribute('id');
         if ($id > 2) {
             return $next($request);

@@ -6,6 +6,7 @@ use App\Controller\Blog\ShowAction;
 use App\Controller\CabinetAction;
 use App\Controller\IndexAction as HomeAction;
 use Aura\Router\RouterContainer;
+use Framework\Middleware\Decorator\Error;
 use Framework\Application;
 use Framework\Http\Router\AuraRouterAdapter;
 use Framework\Http\Resolver;
@@ -28,6 +29,7 @@ $params = [
         'some' => 'new',
         'X-Developer' => 'Kyznetsov'
     ],
+    'debug' => true
 ];
 ### Initialization
 
@@ -52,6 +54,7 @@ $resolver = new Resolver();
 $request = ServerRequestFactory::fromGlobals();
 $app = new Application($resolver, new NotFound());
 
+$app->pipe($resolver->resolve(new Error($params['debug'])));
 $app->pipe($resolver->resolve(Profiler::class));
 $app->pipe($resolver->resolve(new Credential($params['headers'])));
 
