@@ -6,17 +6,14 @@ use App\Controller\Blog\ShowAction;
 use App\Controller\CabinetAction;
 use App\Controller\IndexAction as HomeAction;
 use Aura\Router\RouterContainer;
+use Framework\Application;
 use Framework\Http\Router\AuraRouterAdapter;
 use Framework\Http\Resolver;
 use Framework\Http\Router\Handler\NotFound;
 use Framework\Middleware\Decorator\Auth;
 use Framework\Middleware\Decorator\Profiler;
-use Framework\Middleware\Pipeline\Pipeline;
-use Laminas\Diactoros\Response\HtmlResponse;
-use Laminas\Diactoros\Response\JsonResponse;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
-use Psr\Http\Message\ServerRequestInterface;
 
 chdir(dirname(__DIR__));
 require_once  'vendor/autoload.php';
@@ -47,9 +44,9 @@ $routes->get('blog_show', '/blog/{id}', ShowAction::class)->tokens(['id' => '\d+
 $router = new AuraRouterAdapter($aura);
 $resolver = new Resolver();
 $request = ServerRequestFactory::fromGlobals();
-$pipeline = new Pipeline();
+$app = new Application($resolver);
 
-$pipeline->pipe($resolver->resolve(Profiler::class));
+$app->pipe($resolver->resolve(Profiler::class));
 
 try {
 
@@ -57,11 +54,11 @@ try {
     foreach ($result->getAttributes() as $attribute => $value) {
         $request = $request->withAttribute($attribute, $value);
     }
-    $pipeline->pipe($resolver->resolve($result->getHandler()));
+    $app->pipe($resolver->resolve($result->getHandler()));
 
 } catch (Exception $e) {}
 
-$response = $pipeline($request, new NotFound());
+$response = $app($request, new NotFound());
 
 $response = $response->withHeader('X-Developer', 'Kyznetsov');
 
