@@ -10,6 +10,8 @@ use Framework\Http\Router\AuraRouterAdapter;
 use Framework\Http\Resolver;
 use Framework\Middleware\Decorator\Auth;
 use Framework\Middleware\Decorator\Profiler;
+use Framework\Middleware\Pipeline\Pipeline;
+use Laminas\Diactoros\Response\HtmlResponse;
 use Laminas\Diactoros\Response\JsonResponse;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
@@ -20,7 +22,7 @@ require_once  'vendor/autoload.php';
 
 $params = [
     'users' => [
-        'admin' => 'password'
+        'user' => 'password'
     ],
 ];
 ### Initialization
@@ -33,12 +35,15 @@ $auth = new Auth($params['users']);
 $routes->get('home', '/', HomeAction::class);
 $routes->get('about', '/about', AboutAction::class);
 $routes->get('blog', '/blog', IndexAction::class);
-$routes->get('cabinet', '/cabinet', function(ServerRequestInterface $request) use ($auth) {
-    $profiler = new Profiler();
-    return $profiler($request, function (ServerRequestInterface $request) use ($auth) {
-        return $auth($request, function (ServerRequestInterface $request) {
-            return (new CabinetAction)($request);
-        });
+$routes->get('cabinet', '/cabinet', function(ServerRequestInterface $request) use ($params) {
+    $pipeline = new Pipeline();
+
+    $pipeline->pipe(new Profiler());
+    $pipeline->pipe(new Auth($params['users']));
+    $pipeline->pipe(new CabinetAction());
+
+    return $pipeline($request, function () {
+        return new HtmlResponse('Undefined page', 404);
     });
 });
 $routes->get('blog_show', '/blog/{id}', ShowAction::class)->tokens(['id' => '\d+']);
