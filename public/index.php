@@ -57,10 +57,7 @@ try {
     foreach ($result->getAttributes() as $attribute => $value) {
         $request = $request->withAttribute($attribute, $value);
     }
-    $handlers = $result->getHandler();
-    foreach (is_array($handlers) ? $handlers : [$handlers] as $handler) {
-        $pipeline->pipe($resolver->resolve($handler));
-    }
+    $pipeline->pipe($resolver->resolve($result->getHandler()));
 
 } catch (Exception $e) {}
 
