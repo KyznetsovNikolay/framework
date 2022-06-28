@@ -11,6 +11,7 @@ use Framework\Http\Router\AuraRouterAdapter;
 use Framework\Http\Resolver;
 use Framework\Http\Router\Handler\NotFound;
 use Framework\Middleware\Decorator\Auth;
+use Framework\Middleware\Decorator\Credential;
 use Framework\Middleware\Decorator\Profiler;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
@@ -21,6 +22,11 @@ require_once  'vendor/autoload.php';
 $params = [
     'users' => [
         'user' => 'password'
+    ],
+    'headers' => [
+        'tata' => 'hello',
+        'some' => 'new',
+        'X-Developer' => 'Kyznetsov'
     ],
 ];
 ### Initialization
@@ -47,6 +53,7 @@ $request = ServerRequestFactory::fromGlobals();
 $app = new Application($resolver, new NotFound());
 
 $app->pipe($resolver->resolve(Profiler::class));
+$app->pipe($resolver->resolve(new Credential($params['headers'])));
 
 try {
 
@@ -59,8 +66,6 @@ try {
 } catch (Exception $e) {}
 
 $response = $app->run($request);
-
-$response = $response->withHeader('X-Developer', 'Kyznetsov');
 
 ### Sending
 
