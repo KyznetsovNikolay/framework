@@ -1,28 +1,47 @@
 <?php
 
 use App\Controller\AboutAction;
-use App\Controller\BlogAction;
-use App\Controller\BlogShowAction;
-use App\Controller\IndexAction;
+use App\Controller\Blog\IndexAction;
+use App\Controller\Blog\ShowAction;
+use App\Controller\CabinetAction;
+use App\Controller\IndexAction as HomeAction;
 use Aura\Router\RouterContainer;
 use Framework\Http\Router\AuraRouterAdapter;
 use Framework\Http\Resolver;
+use Framework\Middleware\Decorator\Auth;
+use Framework\Middleware\Decorator\Profiler;
 use Laminas\Diactoros\Response\JsonResponse;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
+use Psr\Http\Message\ServerRequestInterface;
 
 chdir(dirname(__DIR__));
 require_once  'vendor/autoload.php';
 
+$params = [
+    'users' => [
+        'admin' => 'password'
+    ],
+];
 ### Initialization
 
 $aura = new RouterContainer();
 $routes = $aura->getMap();
 
-$routes->get('home', '/', IndexAction::class);
+$auth = new Auth($params['users']);
+
+$routes->get('home', '/', HomeAction::class);
 $routes->get('about', '/about', AboutAction::class);
-$routes->get('blog', '/blog', BlogAction::class);
-$routes->get('blog_show', '/blog/{id}', BlogShowAction::class)->tokens(['id' => '\d+']);
+$routes->get('blog', '/blog', IndexAction::class);
+$routes->get('cabinet', '/cabinet', function(ServerRequestInterface $request) use ($auth) {
+    $profiler = new Profiler();
+    return $profiler($request, function (ServerRequestInterface $request) use ($auth) {
+        return $auth($request, function (ServerRequestInterface $request) {
+            return (new CabinetAction)($request);
+        });
+    });
+});
+$routes->get('blog_show', '/blog/{id}', ShowAction::class)->tokens(['id' => '\d+']);
 
 ### Running
 
