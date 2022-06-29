@@ -6,14 +6,15 @@ use App\Controller\Blog\ShowAction;
 use App\Controller\CabinetAction;
 use App\Controller\IndexAction as HomeAction;
 use Aura\Router\RouterContainer;
-use Framework\Middleware\Decorator\Error;
+use Framework\Middleware\Decorator\Error as ErrorMiddleware;
 use Framework\Application;
 use Framework\Http\Router\AuraRouterAdapter;
 use Framework\Http\Resolver;
 use Framework\Http\Router\Handler\NotFound;
-use Framework\Middleware\Decorator\Auth;
-use Framework\Middleware\Decorator\Credential;
-use Framework\Middleware\Decorator\Profiler;
+use Framework\Middleware\Decorator\Auth as AuthMiddleware;
+use Framework\Middleware\Decorator\Credential as CredentialMiddleware;
+use Framework\Middleware\Decorator\Profiler as ProfilerMiddleware;
+use Framework\Middleware\Decorator\Route as RouteMiddleware;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 
@@ -36,13 +37,11 @@ $params = [
 $aura = new RouterContainer();
 $routes = $aura->getMap();
 
-$auth = new Auth($params['users']);
-
 $routes->get('home', '/', HomeAction::class);
 $routes->get('about', '/about', AboutAction::class);
 $routes->get('blog', '/blog', IndexAction::class);
 $routes->get('cabinet', '/cabinet', [
-    new Auth($params['users']),
+    new AuthMiddleware($params['users']),
     CabinetAction::class,
 ]);
 $routes->get('blog_show', '/blog/{id}', ShowAction::class)->tokens(['id' => '\d+']);
@@ -54,19 +53,20 @@ $resolver = new Resolver();
 $request = ServerRequestFactory::fromGlobals();
 $app = new Application($resolver, new NotFound());
 
-$app->pipe($resolver->resolve(new Error($params['debug'])));
-$app->pipe($resolver->resolve(Profiler::class));
-$app->pipe($resolver->resolve(new Credential($params['headers'])));
+$app->pipe($resolver->resolve(new ErrorMiddleware($params['debug'])));
+$app->pipe($resolver->resolve(ProfilerMiddleware::class));
+$app->pipe($resolver->resolve(new CredentialMiddleware($params['headers'])));
+$app->pipe($resolver->resolve(new RouteMiddleware($router, $resolver)));
 
-try {
-
-    $result = $router->match($request);
-    foreach ($result->getAttributes() as $attribute => $value) {
-        $request = $request->withAttribute($attribute, $value);
-    }
-    $app->pipe($resolver->resolve($result->getHandler()));
-
-} catch (Exception $e) {}
+//try {
+//
+//    $result = $router->match($request);
+//    foreach ($result->getAttributes() as $attribute => $value) {
+//        $request = $request->withAttribute($attribute, $value);
+//    }
+//    $app->pipe($resolver->resolve($result->getHandler()));
+//
+//} catch (Exception $e) {}
 
 $response = $app->run($request);
 
