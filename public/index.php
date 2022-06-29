@@ -16,6 +16,7 @@ use Framework\Middleware\Decorator\Auth as AuthMiddleware;
 use Framework\Middleware\Decorator\Credential as CredentialMiddleware;
 use Framework\Middleware\Decorator\Profiler as ProfilerMiddleware;
 use Framework\Middleware\Decorator\Route as RouteMiddleware;
+use Laminas\Diactoros\Response;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 
@@ -33,6 +34,7 @@ $params = [
     ],
     'debug' => true
 ];
+
 ### Initialization
 
 $aura = new RouterContainer();
@@ -60,7 +62,7 @@ $app->pipe($resolver->resolve(new CredentialMiddleware($params['headers'])));
 $app->pipe($resolver->resolve(new RouteMiddleware($router)));
 $app->pipe($resolver->resolve(new DispatchMiddleware($resolver)));
 
-$response = $app->run($request);
+$response = $app->run($request, new Response());
 
 ### Sending
 
