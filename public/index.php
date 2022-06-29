@@ -6,6 +6,7 @@ use App\Controller\Blog\ShowAction;
 use App\Controller\CabinetAction;
 use App\Controller\IndexAction as HomeAction;
 use Aura\Router\RouterContainer;
+use Framework\Middleware\Decorator\Dispatch as DispatchMiddleware;
 use Framework\Middleware\Decorator\Error as ErrorMiddleware;
 use Framework\Application;
 use Framework\Http\Router\AuraRouterAdapter;
@@ -56,17 +57,8 @@ $app = new Application($resolver, new NotFound());
 $app->pipe($resolver->resolve(new ErrorMiddleware($params['debug'])));
 $app->pipe($resolver->resolve(ProfilerMiddleware::class));
 $app->pipe($resolver->resolve(new CredentialMiddleware($params['headers'])));
-$app->pipe($resolver->resolve(new RouteMiddleware($router, $resolver)));
-
-//try {
-//
-//    $result = $router->match($request);
-//    foreach ($result->getAttributes() as $attribute => $value) {
-//        $request = $request->withAttribute($attribute, $value);
-//    }
-//    $app->pipe($resolver->resolve($result->getHandler()));
-//
-//} catch (Exception $e) {}
+$app->pipe($resolver->resolve(new RouteMiddleware($router)));
+$app->pipe($resolver->resolve(new DispatchMiddleware($resolver)));
 
 $response = $app->run($request);
 
