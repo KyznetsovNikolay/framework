@@ -56,11 +56,11 @@ $resolver = new Resolver();
 $request = ServerRequestFactory::fromGlobals();
 $app = new Application($request, $resolver, new NotFound());
 
-$app->pipe($resolver->resolve(new ErrorMiddleware($params['debug'])));
-$app->pipe($resolver->resolve(ProfilerMiddleware::class));
-$app->pipe($resolver->resolve(new CredentialMiddleware($params['headers'])));
-$app->pipe($resolver->resolve(new RouteMiddleware($router)));
-$app->pipe($resolver->resolve(new DispatchMiddleware($resolver)));
+$app->pipe(new ErrorMiddleware($params['debug']));
+$app->pipe(ProfilerMiddleware::class);
+$app->pipe(new CredentialMiddleware($params['headers']));
+$app->pipe(new RouteMiddleware($router));
+$app->pipe(new DispatchMiddleware($resolver));
 
 $response = $app->run(new Response());
 
