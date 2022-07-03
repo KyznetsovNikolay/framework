@@ -54,7 +54,7 @@ $routes->get('blog_show', '/blog/{id}', ShowAction::class)->tokens(['id' => '\d+
 $router = new AuraRouterAdapter($aura);
 $resolver = new Resolver();
 $request = ServerRequestFactory::fromGlobals();
-$app = new Application($resolver, new NotFound());
+$app = new Application($request, $resolver, new NotFound());
 
 $app->pipe($resolver->resolve(new ErrorMiddleware($params['debug'])));
 $app->pipe($resolver->resolve(ProfilerMiddleware::class));
@@ -62,7 +62,7 @@ $app->pipe($resolver->resolve(new CredentialMiddleware($params['headers'])));
 $app->pipe($resolver->resolve(new RouteMiddleware($router)));
 $app->pipe($resolver->resolve(new DispatchMiddleware($resolver)));
 
-$response = $app->run($request, new Response());
+$response = $app->run(new Response());
 
 ### Sending
 

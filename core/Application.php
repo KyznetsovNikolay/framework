@@ -21,20 +21,33 @@ class Application extends Pipeline
      */
     private $default;
 
-    public function __construct(Resolver $resolver, callable $default)
+    /**
+     * @var ServerRequestInterface
+     */
+    protected ServerRequestInterface $request;
+
+    public function __construct(ServerRequestInterface $request, Resolver $resolver, callable $default)
     {
         parent::__construct();
         $this->resolver = $resolver;
         $this->default = $default;
+        $this->request = $request;
     }
 
-    public function pipe($middleware): void
+    public function pipe($path, $middleware = null): void
     {
-        parent::pipe($this->resolver->resolve($middleware));
+        if (!$middleware) {
+            parent::pipe($this->resolver->resolve($path));
+        } else {
+            $uriPath = substr($this->request->getUri()->getPath(), 1, strlen($path));
+            if ($path === $uriPath) {
+                parent::pipe($this->resolver->resolve($middleware));
+            }
+        }
     }
 
-    public function run(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    public function run(ResponseInterface $response): ResponseInterface
     {
-        return $this($request, $response, $this->default);
+        return $this($this->request, $response, $this->default);
     }
 }
