@@ -49,8 +49,8 @@ $container->set(Dispatch::class, function (Container $container) {
     return new Dispatch($container->get(Resolver::class));
 });
 
-$container->set(Resolver::class, function () {
-    return new Resolver();
+$container->set(Resolver::class, function (Container $container) {
+    return new Resolver($container);
 });
 
 $container->set(RouterInterface::class, function () {

@@ -41,4 +41,11 @@ class Router implements RouterInterface
 
         throw new RouteNotFoundException($name, $params);
     }
+
+    /**
+     * stub without implementation
+     * not used anywhere yet
+     * @param RouteData $data
+     */
+    public function addRoute(RouteData $data): void {}
 }

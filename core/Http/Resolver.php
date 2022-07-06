@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Framework\Http;
 
+use Framework\Container\Container;
 use Framework\Middleware\Exception\UnknownMiddlewareTypeException;
 use Framework\Middleware\Pipeline\Pipeline;
 use Framework\Middleware\Pipeline\RequestHandlerWrapper;
@@ -13,15 +14,22 @@ use Psr\Http\Server\MiddlewareInterface;
 
 class Resolver
 {
+    private $container;
+
+    public function __construct(Container $container)
+    {
+        $this->container = $container;
+    }
+
     public function resolve($handler): callable
     {
         if (\is_array($handler)) {
             return $this->createPipe($handler);
         }
 
-        if (\is_string($handler)) {
+        if (\is_string($handler) && $this->container->has($handler)) {
             return function (ServerRequestInterface $request, ResponseInterface $response, callable $next) use ($handler) {
-                $middleware = $this->resolve(new $handler());
+                $middleware = $this->resolve($this->container->get($handler));
                 return $middleware($request, $response, $next);
             };
         }

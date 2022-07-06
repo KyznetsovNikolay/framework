@@ -19,6 +19,10 @@ class Container
         }
 
         if (!array_key_exists($id, $this->definitions)) {
+            if (class_exists($id)) {
+                $this->results[$id] = new $id();
+                return $this->results[$id];
+            }
             throw new ServiceNotFoundException('Unknown service "' . $id . '"');
         }
 
@@ -40,5 +44,10 @@ class Container
         }
 
         $this->definitions[$id] = $value;
+    }
+
+    public function has($id): bool
+    {
+        return array_key_exists($id, $this->definitions) || class_exists($id);
     }
 }
