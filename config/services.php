@@ -11,8 +11,6 @@ use Framework\Http\Router\Handler\NotFound;
 use Framework\Http\Router\RouterInterface;
 use Framework\Middleware\Decorator\Auth;
 use Framework\Middleware\Decorator\Credential;
-use Framework\Middleware\Decorator\Dispatch;
-use Framework\Middleware\Decorator\Route;
 use Framework\Middleware\Decorator\Error;
 use Laminas\Diactoros\ServerRequestFactory;
 
@@ -39,14 +37,6 @@ $container->set(Error::class, function (Container $container) {
 
 $container->set(Credential::class, function (Container $container) {
     return new Credential($container->get('config')['headers']);
-});
-
-$container->set(Route::class, function (Container $container) {
-    return new Route($container->get(RouterInterface::class));
-});
-
-$container->set(Dispatch::class, function (Container $container) {
-    return new Dispatch($container->get(Resolver::class));
 });
 
 $container->set(Resolver::class, function (Container $container) {
