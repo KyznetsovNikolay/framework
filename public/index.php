@@ -6,6 +6,7 @@ use App\Controller\Blog\ShowAction;
 use App\Controller\CabinetAction;
 use App\Controller\IndexAction as HomeAction;
 use Aura\Router\RouterContainer;
+use Framework\Container\Container;
 use Framework\Middleware\Decorator\Dispatch as DispatchMiddleware;
 use Framework\Middleware\Decorator\Error as ErrorMiddleware;
 use Framework\Application;
@@ -23,7 +24,10 @@ use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 chdir(dirname(__DIR__));
 require_once  'vendor/autoload.php';
 
-$params = [
+### Initialization
+
+$container = new Container();
+$container->set('config', [
     'users' => [
         'user' => 'password'
     ],
@@ -33,9 +37,7 @@ $params = [
         'X-Developer' => 'Kyznetsov'
     ],
     'debug' => true
-];
-
-### Initialization
+]);
 
 $aura = new RouterContainer();
 $routes = $aura->getMap();
@@ -44,7 +46,7 @@ $routes->get('home', '/', HomeAction::class);
 $routes->get('about', '/about', AboutAction::class);
 $routes->get('blog', '/blog', IndexAction::class);
 $routes->get('cabinet', '/cabinet', [
-    new AuthMiddleware($params['users']),
+    new AuthMiddleware($container->get('config')['users']),
     CabinetAction::class,
 ]);
 $routes->get('blog_show', '/blog/{id}', ShowAction::class)->tokens(['id' => '\d+']);
@@ -56,9 +58,9 @@ $resolver = new Resolver();
 $request = ServerRequestFactory::fromGlobals();
 $app = new Application($request, $resolver, new NotFound());
 
-$app->pipe(new ErrorMiddleware($params['debug']));
+$app->pipe(new ErrorMiddleware($container->get('config')['debug']));
 $app->pipe(ProfilerMiddleware::class);
-$app->pipe(new CredentialMiddleware($params['headers']));
+$app->pipe(new CredentialMiddleware($container->get('config')['headers']));
 $app->pipe(new RouteMiddleware($router));
 $app->pipe(new DispatchMiddleware($resolver));
 
