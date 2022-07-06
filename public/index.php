@@ -7,19 +7,21 @@ use App\Controller\CabinetAction;
 use App\Controller\IndexAction as HomeAction;
 use Aura\Router\RouterContainer;
 use Framework\Container\Container;
-use Framework\Middleware\Decorator\Dispatch as DispatchMiddleware;
-use Framework\Middleware\Decorator\Error as ErrorMiddleware;
+use Framework\Http\Router\RouterInterface;
+use Framework\Middleware\Decorator\Dispatch;
+use Framework\Middleware\Decorator\Error;
 use Framework\Application;
 use Framework\Http\Router\AuraRouterAdapter;
 use Framework\Http\Resolver;
 use Framework\Http\Router\Handler\NotFound;
-use Framework\Middleware\Decorator\Auth as AuthMiddleware;
-use Framework\Middleware\Decorator\Credential as CredentialMiddleware;
+use Framework\Middleware\Decorator\Auth;
+use Framework\Middleware\Decorator\Credential;
 use Framework\Middleware\Decorator\Profiler as ProfilerMiddleware;
-use Framework\Middleware\Decorator\Route as RouteMiddleware;
+use Framework\Middleware\Decorator\Route;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
+use Psr\Http\Message\RequestInterface;
 
 chdir(dirname(__DIR__));
 require_once  'vendor/autoload.php';
@@ -29,7 +31,7 @@ require_once  'vendor/autoload.php';
 $container = new Container();
 $container->set('config', [
     'users' => [
-        'user' => 'password'
+        'admin' => 'password'
     ],
     'headers' => [
         'tata' => 'hello',
@@ -39,30 +41,62 @@ $container->set('config', [
     'debug' => true
 ]);
 
-$aura = new RouterContainer();
-$routes = $aura->getMap();
+$container->set(Application::class, function (Container $container) {
+    $request = ServerRequestFactory::fromGlobals();
+    return new Application(
+        $request,
+        $container->get(Resolver::class),
+        new NotFound()
+    );
+});
 
-$routes->get('home', '/', HomeAction::class);
-$routes->get('about', '/about', AboutAction::class);
-$routes->get('blog', '/blog', IndexAction::class);
-$routes->get('cabinet', '/cabinet', [
-    new AuthMiddleware($container->get('config')['users']),
-    CabinetAction::class,
-]);
-$routes->get('blog_show', '/blog/{id}', ShowAction::class)->tokens(['id' => '\d+']);
+$container->set(Auth::class, function (Container $container) {
+    return new Auth($container->get('config')['users']);
+});
 
-### Running
+$container->set(Error::class, function (Container $container) {
+    return new Error($container->get('config')['debug']);
+});
 
-$router = new AuraRouterAdapter($aura);
-$resolver = new Resolver();
-$request = ServerRequestFactory::fromGlobals();
-$app = new Application($request, $resolver, new NotFound());
+$container->set(Credential::class, function (Container $container) {
+    return new Credential($container->get('config')['headers']);
+});
 
-$app->pipe(new ErrorMiddleware($container->get('config')['debug']));
+$container->set(Route::class, function (Container $container) {
+    return new Route($container->get(RouterInterface::class));
+});
+
+$container->set(Dispatch::class, function (Container $container) {
+    return new Dispatch($container->get(Resolver::class));
+});
+
+$container->set(Resolver::class, function () {
+    return new Resolver();
+});
+
+$container->set(RouterInterface::class, function (Container $container) {
+    $aura = new RouterContainer();
+    $routes = $aura->getMap();
+
+    $routes->get('home', '/', HomeAction::class);
+    $routes->get('about', '/about', AboutAction::class);
+    $routes->get('blog', '/blog', IndexAction::class);
+    $routes->get('cabinet', '/cabinet', [
+        $container->get(Auth::class),
+        CabinetAction::class,
+    ]);
+    $routes->get('blog_show', '/blog/{id}', ShowAction::class)->tokens(['id' => '\d+']);
+
+    return new AuraRouterAdapter($aura);
+});
+
+$app = $container->get(Application::class);
+
+$app->pipe($container->get(Error::class));
 $app->pipe(ProfilerMiddleware::class);
-$app->pipe(new CredentialMiddleware($container->get('config')['headers']));
-$app->pipe(new RouteMiddleware($router));
-$app->pipe(new DispatchMiddleware($resolver));
+$app->pipe($container->get(Credential::class));
+$app->pipe($container->get(Route::class));
+$app->pipe($container->get(Dispatch::class));
 
 $response = $app->run(new Response());
 
