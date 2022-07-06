@@ -21,7 +21,6 @@ use Framework\Middleware\Decorator\Route;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\ServerRequestFactory;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
-use Psr\Http\Message\RequestInterface;
 
 chdir(dirname(__DIR__));
 require_once  'vendor/autoload.php';
@@ -46,6 +45,7 @@ $container->set(Application::class, function (Container $container) {
     return new Application(
         $request,
         $container->get(Resolver::class),
+        $container->get(RouterInterface::class),
         new NotFound()
     );
 });
@@ -74,20 +74,8 @@ $container->set(Resolver::class, function () {
     return new Resolver();
 });
 
-$container->set(RouterInterface::class, function (Container $container) {
-    $aura = new RouterContainer();
-    $routes = $aura->getMap();
-
-    $routes->get('home', '/', HomeAction::class);
-    $routes->get('about', '/about', AboutAction::class);
-    $routes->get('blog', '/blog', IndexAction::class);
-    $routes->get('cabinet', '/cabinet', [
-        $container->get(Auth::class),
-        CabinetAction::class,
-    ]);
-    $routes->get('blog_show', '/blog/{id}', ShowAction::class)->tokens(['id' => '\d+']);
-
-    return new AuraRouterAdapter($aura);
+$container->set(RouterInterface::class, function () {
+    return new AuraRouterAdapter(new RouterContainer());
 });
 
 $app = $container->get(Application::class);
@@ -97,6 +85,16 @@ $app->pipe(ProfilerMiddleware::class);
 $app->pipe($container->get(Credential::class));
 $app->pipe($container->get(Route::class));
 $app->pipe($container->get(Dispatch::class));
+
+$app->get('home', '/', HomeAction::class);
+$app->get('about', '/about', AboutAction::class);
+$app->get('blog', '/blog', IndexAction::class);
+$app->get('cabinet', '/cabinet', [
+    $container->get(Auth::class),
+    CabinetAction::class,
+]);
+$app->get('blog_show', '/blog/{id}', ShowAction::class, ['tokens' => ['id' => '\d+']]);
+
 
 $response = $app->run(new Response());
 

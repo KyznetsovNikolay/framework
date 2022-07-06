@@ -24,4 +24,9 @@ interface RouterInterface
      * @return string
      */
     public function generate($name, array $params): string;
+
+    /**
+     * @param RouteData $data
+     */
+    public function addRoute(RouteData $data): void;
 }
