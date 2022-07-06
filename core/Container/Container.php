@@ -8,10 +8,24 @@ use Framework\Container\Exception\ServiceNotFoundException;
 
 class Container
 {
+    /**
+     * @var array
+     */
     private $definitions = [];
 
+    /**
+     * @var array
+     */
     private $results = [];
 
+    /**
+     * @var array
+     */
+    private array $arguments = [];
+
+    /**
+     * @throws \ReflectionException
+     */
     public function get($id)
     {
         if (array_key_exists($id, $this->results)) {
@@ -23,19 +37,25 @@ class Container
                 $reflection = new \ReflectionClass($id);
                 $arguments = [];
                 if (($constructor = $reflection->getConstructor()) !== null) {
+
                     foreach ($constructor->getParameters() as $parameter) {
                         if ($paramClass = $parameter->getClass()) {
                             $arguments[] = $this->get($paramClass->getName());
-                        } elseif ($parameter->isArray()) {
-                            $arguments[] = [];
                         } else {
                             if (!$parameter->isDefaultValueAvailable()) {
-                                throw new ServiceNotFoundException('Unable to resolve "' . $parameter->getName() . '"" in service "' . $id . '"');
+                                $defaultParameters = $this->arguments[$id];
+                                if ($argument = $defaultParameters[$parameter->getName()]) {
+                                    return $argument;
+                                } else {
+                                    throw new ServiceNotFoundException('Unable to resolve "' . $parameter->getName() . '"" in service "' . $id . '"');
+                                }
+                            } else {
+                                $arguments[] = $parameter->getDefaultValue();
                             }
-                            $arguments[] = $parameter->getDefaultValue();
                         }
                     }
                 }
+
                 $this->results[$id] = $reflection->newInstanceArgs($arguments);
                 return $this->results[$id];
             }
@@ -65,5 +85,25 @@ class Container
     public function has($id): bool
     {
         return array_key_exists($id, $this->definitions) || class_exists($id);
+    }
+
+    public function setDefaultArguments(array $arguments)
+    {
+        $this->arguments = $arguments;
+    }
+
+    /**
+     * @param string $id
+     * @param string $paramName
+     * @return mixed
+     */
+    private function getArgument(string $id, string $paramName)
+    {
+        $defaultParameters = $this->arguments[$id];
+        if ($argument = $defaultParameters[$paramName]) {
+            return $argument;
+        } else {
+            throw new ServiceNotFoundException('Unable to resolve "' . $paramName . '"" in service "' . $id . '"');
+        }
     }
 }
