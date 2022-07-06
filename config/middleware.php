@@ -2,6 +2,7 @@
 
 use Framework\Application;
 use Framework\Container\Container;
+use Framework\Middleware\Decorator\Auth;
 use Framework\Middleware\Decorator\Dispatch;
 use Framework\Middleware\Decorator\Credential;
 use Framework\Middleware\Decorator\Profiler;
@@ -15,5 +16,6 @@ use Framework\Middleware\Decorator\Error;
 $app->pipe($container->get(Error::class));
 $app->pipe(Profiler::class);
 $app->pipe($container->get(Credential::class));
+$app->pipe('cabinet', $container->get(Auth::class));
 $app->pipe($container->get(Route::class));
 $app->pipe($container->get(Dispatch::class));
