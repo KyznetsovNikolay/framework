@@ -6,7 +6,7 @@ namespace Framework\Container;
 
 use Framework\Container\Exception\ServiceNotFoundException;
 
-class Container
+class Container implements ContainerInterface
 {
     /**
      * @var array
@@ -24,7 +24,7 @@ class Container
     private array $arguments = [];
 
     /**
-     * @throws \ReflectionException
+     * @throws ServiceNotFoundException
      */
     public function get($id)
     {

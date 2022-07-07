@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Framework\Http;
 
-use Framework\Container\Container;
+use Framework\Container\ContainerInterface;
 use Framework\Middleware\Exception\UnknownMiddlewareTypeException;
 use Framework\Middleware\Pipeline\Pipeline;
 use Framework\Middleware\Pipeline\RequestHandlerWrapper;
@@ -16,7 +16,7 @@ class Resolver
 {
     private $container;
 
-    public function __construct(Container $container)
+    public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
     }
