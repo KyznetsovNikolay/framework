@@ -18,6 +18,7 @@ use Framework\Middleware\Decorator\Profiler;
 use App\Controller\AboutAction;
 use App\Controller\Blog\ShowAction;
 use App\Controller\CabinetAction;
+use Laminas\ServiceManager\AbstractFactory\ReflectionBasedAbstractFactory;
 use Psr\Container\ContainerInterface;
 
 return [
@@ -29,6 +30,9 @@ return [
             CabinetAction::class,
             App\Controller\Blog\IndexAction::class,
             ShowAction::class,
+        ],
+        'abstract_factories' => [
+            ReflectionBasedAbstractFactory::class,
         ],
         'factories' => [
             Application::class => function (ContainerInterface $container) {
