@@ -11,7 +11,7 @@ class Container implements ContainerInterface
     /**
      * @var array
      */
-    private $definitions = [];
+    private $definitions;
 
     /**
      * @var array
@@ -22,6 +22,11 @@ class Container implements ContainerInterface
      * @var array
      */
     private array $arguments = [];
+
+    public function __construct(array $definitions = [])
+    {
+        $this->definitions = $definitions;
+    }
 
     /**
      * @throws ServiceNotFoundException
@@ -90,20 +95,5 @@ class Container implements ContainerInterface
     public function setDefaultArguments(array $arguments)
     {
         $this->arguments = $arguments;
-    }
-
-    /**
-     * @param string $id
-     * @param string $paramName
-     * @return mixed
-     */
-    private function getArgument(string $id, string $paramName)
-    {
-        $defaultParameters = $this->arguments[$id];
-        if ($argument = $defaultParameters[$paramName]) {
-            return $argument;
-        } else {
-            throw new ServiceNotFoundException('Unable to resolve "' . $paramName . '"" in service "' . $id . '"');
-        }
     }
 }

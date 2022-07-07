@@ -14,35 +14,29 @@ use Framework\Middleware\Decorator\Credential;
 use Framework\Middleware\Decorator\Error;
 use Laminas\Diactoros\ServerRequestFactory;
 
-/**
- * @var Container $container
- */
-$container->set(Application::class, function (Container $container) {
-    $request = ServerRequestFactory::fromGlobals();
-    return new Application(
-        $request,
-        $container->get(Resolver::class),
-        $container->get(RouterInterface::class),
-        new NotFound()
-    );
-});
-
-$container->set(Auth::class, function (Container $container) {
-    return new Auth($container->get('config')['users']);
-});
-
-$container->set(Error::class, function (Container $container) {
-    return new Error($container->get('config')['debug']);
-});
-
-$container->set(Credential::class, function (Container $container) {
-    return new Credential($container->get('config')['headers']);
-});
-
-$container->set(Resolver::class, function (Container $container) {
-    return new Resolver($container);
-});
-
-$container->set(RouterInterface::class, function () {
-    return new AuraRouterAdapter(new RouterContainer());
-});
+return [
+    Application::class => function (Container $container) {
+        $request = ServerRequestFactory::fromGlobals();
+        return new Application(
+            $request,
+            $container->get(Resolver::class),
+            $container->get(RouterInterface::class),
+            new NotFound()
+        );
+    },
+    Auth::class => function (Container $container) {
+        return new Auth($container->get('config')['users']);
+    },
+    Error::class => function (Container $container) {
+        return new Error($container->get('config')['debug']);
+    },
+    Credential::class => function (Container $container) {
+        return new Credential($container->get('config')['headers']);
+    },
+    Resolver::class => function (Container $container) {
+        return new Resolver($container);
+    },
+    RouterInterface::class => function () {
+        return new AuraRouterAdapter(new RouterContainer());
+    },
+];
