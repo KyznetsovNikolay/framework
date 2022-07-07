@@ -8,7 +8,6 @@ use Framework\Http\Resolver;
 use Framework\Http\Router\AuraRouterAdapter;
 use Framework\Http\Router\Handler\NotFound;
 use Framework\Http\Router\RouterInterface;
-use Framework\Middleware\Decorator\Auth;
 use Framework\Middleware\Decorator\Credential;
 use Framework\Middleware\Decorator\Dispatch;
 use Framework\Middleware\Decorator\Error;
@@ -49,9 +48,6 @@ return [
             },
             Resolver::class => function (ContainerInterface $container) {
                 return new Resolver($container);
-            },
-            Auth::class => function (ContainerInterface $container) {
-                return new Auth($container->get('config')['users']);
             },
             Error::class => function (ContainerInterface $container) {
                 return new Error($container->get('config')['debug']);

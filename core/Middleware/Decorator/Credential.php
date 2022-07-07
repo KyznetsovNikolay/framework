@@ -23,8 +23,10 @@ class Credential
     {
         /** @var ResponseInterface $response */
         $response = $next($request);
-        foreach ($this->headers as $header => $value) {
-            $response = $response->withHeader($header, $value);
+        if (count($this->headers)) {
+            foreach ($this->headers as $header => $value) {
+                $response = $response->withHeader($header, $value);
+            }
         }
 
         return $response;

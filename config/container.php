@@ -2,7 +2,8 @@
 
 use Laminas\ServiceManager\ServiceManager;
 
-$config = require __DIR__ . '/main.php';
+$config = require __DIR__ . '/config.php';
+
 $container = new ServiceManager($config['dependencies']);
 
 /**
