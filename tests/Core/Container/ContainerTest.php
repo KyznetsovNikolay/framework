@@ -115,8 +115,6 @@ class ContainerTest extends TestCase
 
         self::assertNotNull($inner = $scalar->inner);
         self::assertInstanceOf(Inner::class, $inner);
-
-        self::assertEquals([], $scalar->array);
         self::assertEquals(10, $scalar->default);
     }
 
@@ -158,13 +156,11 @@ class Inner
 class ScalarWithArrayAndDefault
 {
     public $inner;
-    public $array;
     public $default;
 
-    public function __construct(Inner $inner, array $array, $default = 10)
+    public function __construct(Inner $inner, $default = 10)
     {
         $this->inner = $inner;
-        $this->array = $array;
         $this->default = $default;
     }
 }
