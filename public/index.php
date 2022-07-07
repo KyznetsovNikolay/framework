@@ -1,15 +1,15 @@
 <?php
 
 use Framework\Application;
-use Framework\Container\Container;
 use Laminas\Diactoros\Response;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
+use Laminas\ServiceManager\ServiceManager;
 
 chdir(dirname(__DIR__));
 require_once  'vendor/autoload.php';
 
 /**
- *  @var Container $container
+ *  @var ServiceManager $container
  *  @var Application $app
  */
 $container = require 'config/container.php';

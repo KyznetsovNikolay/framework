@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Core\Container;
 
-use Framework\Container\Container;
 use Framework\Container\Exception\ServiceNotFoundException;
+use Psr\Container\ContainerInterface;
 
-class DummyContainer extends Container
+class DummyContainer implements ContainerInterface
 {
     public function get($id)
     {

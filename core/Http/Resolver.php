@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Framework\Http;
 
-use Framework\Container\ContainerInterface;
 use Framework\Middleware\Exception\UnknownMiddlewareTypeException;
 use Framework\Middleware\Pipeline\Pipeline;
 use Framework\Middleware\Pipeline\RequestHandlerWrapper;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;

@@ -1,10 +1,15 @@
 <?php
 
-use Framework\Container\Container;
+use Laminas\ServiceManager\ServiceManager;
 
-$container = new Container(require __DIR__ . '/services.php');
+$config = require __DIR__ . '/main.php';
+$container = new ServiceManager($config['dependencies']);
 
-$container->set('config', require __DIR__ . '/parameters.php');
-$container->setDefaultArguments(require __DIR__ . '/default_arguments.php');
+/**
+ * Dropped dependencies because they already defined
+ * Stay only config parameters
+ */
+unset($config['dependencies']);
+$container->setService('config', $config);
 
 return $container;
