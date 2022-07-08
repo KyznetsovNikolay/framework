@@ -11,5 +11,5 @@ interface RendererInterface
      * @param array $params
      * @return string
      */
-    public function render($_view, array $params = []):string;
+    public function render($_view, array $params = []): string;
 }

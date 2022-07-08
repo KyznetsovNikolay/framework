@@ -14,9 +14,7 @@ use Framework\Template\Renderer;
 use Framework\Template\RendererInterface;
 use Laminas\Diactoros\ServerRequestFactory;
 use Framework\Middleware\Decorator\Profiler;
-use App\Controller\AboutAction;
 use App\Controller\Blog\ShowAction;
-use App\Controller\CabinetAction;
 use Laminas\ServiceManager\AbstractFactory\ReflectionBasedAbstractFactory;
 use Psr\Container\ContainerInterface;
 
@@ -24,8 +22,6 @@ return [
     'dependencies' => [
         'invokables' => [
             Profiler::class,
-            AboutAction::class,
-            CabinetAction::class,
             App\Controller\Blog\IndexAction::class,
             ShowAction::class,
         ],

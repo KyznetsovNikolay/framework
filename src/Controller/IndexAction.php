@@ -14,6 +14,6 @@ class IndexAction extends BaseController
     public function __invoke(ServerRequestInterface $request): Response
     {
         $name = $request->getQueryParams()['name'] ?? 'Guest';
-        return new HtmlResponse($this->render('tata.home', ['name' => $name]));
+        return new HtmlResponse($this->render('main.home', ['name' => $name]));
     }
 }
