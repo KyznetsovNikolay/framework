@@ -1,3 +1,9 @@
+<?php
+
+use Framework\Template\Renderer;
+
+/** @var Renderer $this */
+?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -12,6 +18,9 @@
         .app { display: flex; min-height: 100vh; flex-direction: column; }
         .app-content {
             flex: 1;
+            margin-top: 30px;
+        }
+        .app-main {
             margin-top: 30px;
         }
         .app-footer { padding-bottom: 1em; }
@@ -41,7 +50,10 @@
 
 <div class="app-content">
     <main class="container">
-        <?= $content; ?>
+        <?= $this->renderSection('breadcrumbs'); ?>
+        <div class="app-main">
+            <?= $content; ?>
+        </div>
     </main>
 </div>
 

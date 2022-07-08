@@ -11,6 +11,13 @@ class Renderer implements RendererInterface
      */
     private string $path;
 
+    private $sectionNames;
+
+    /**
+     * @var array
+     */
+    private array $sections;
+
     /**
      * @var string|null
      */
@@ -19,6 +26,7 @@ class Renderer implements RendererInterface
     public function __construct(string $path)
     {
         $this->path = $path;
+        $this->sectionNames = new \SplStack();
     }
 
     /**
@@ -55,5 +63,31 @@ class Renderer implements RendererInterface
             $_view = str_replace('.', '/', $_view);
         }
         return $this->path . '/' . $_view . '.php';
+    }
+
+    public function extend($view): void
+    {
+        $this->extend = $view;
+    }
+
+    public function startSection(string $name)
+    {
+        $this->sectionNames->push($name);
+        ob_start();
+    }
+
+    public function endSection()
+    {
+        $name = $this->sectionNames->pop();
+        $this->sections[$name] = ob_get_clean();
+    }
+
+    /**
+     * @param string $name
+     * @return string
+     */
+    public function renderSection(string $name): string
+    {
+        return $this->sections[$name] ?? '';
     }
 }
