@@ -6,7 +6,9 @@ use Framework\Template\Renderer;
 $this->extend('main.pieces.column');
 ?>
 
-<?php $this->startSection('column'); ?>
+<?php $this->startSection('title'); ?>Cabinet<?php $this->endSection(); ?>
+
+<?php $this->startSection('sidebar'); ?>
     <div class="col-md-3">
         <div class="card" style="width: 18rem;">
             <div class="card-header">
@@ -28,4 +30,6 @@ $this->extend('main.pieces.column');
     </nav>
 <?php $this->endSection(); ?>
 
-<p>I'am logged in as <?= $username; ?></p>
+<?php $this->startSection('main'); ?>
+    <p>I'am logged in as <?= $username; ?></p>
+<?php $this->endSection(); ?>

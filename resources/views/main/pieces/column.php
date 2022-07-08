@@ -6,10 +6,12 @@ use Framework\Template\Renderer;
 $this->extend('layout.app');
 ?>
 
-<div class="row">
-    <div class="col-md-9">
-        <?= $content ?>
+<?php $this->startSection('content') ?>
+    <div class="row">
+        <div class="col-md-9">
+            <?= $this->renderSection('main'); ?>
+        </div>
+        <?= $this->renderSection('sidebar'); ?>
     </div>
-    <?= $this->renderSection('column'); ?>
-</div>
+<?php $this->endSection(); ?>
 

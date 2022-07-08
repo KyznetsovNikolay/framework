@@ -48,9 +48,7 @@ class Renderer implements RendererInterface
             return $content;
         }
 
-        return $this->render($this->extend, [
-            'content' => $content
-        ]);
+        return $this->render($this->extend);
     }
 
     /**
