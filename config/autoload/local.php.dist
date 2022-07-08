@@ -7,4 +7,5 @@ return [
         'users' => [],
     ],
     'headers' => [],
+    'render_path' => '',
 ];

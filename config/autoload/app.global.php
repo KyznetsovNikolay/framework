@@ -9,9 +9,9 @@ use Framework\Http\Router\AuraRouterAdapter;
 use Framework\Http\Router\Handler\NotFound;
 use Framework\Http\Router\RouterInterface;
 use Framework\Middleware\Decorator\Credential;
-use Framework\Middleware\Decorator\Dispatch;
 use Framework\Middleware\Decorator\Error;
-use Framework\Middleware\Decorator\Route;
+use Framework\Template\Renderer;
+use Framework\Template\RendererInterface;
 use Laminas\Diactoros\ServerRequestFactory;
 use Framework\Middleware\Decorator\Profiler;
 use App\Controller\AboutAction;
@@ -24,7 +24,6 @@ return [
     'dependencies' => [
         'invokables' => [
             Profiler::class,
-            App\Controller\IndexAction::class,
             AboutAction::class,
             CabinetAction::class,
             App\Controller\Blog\IndexAction::class,
@@ -52,15 +51,12 @@ return [
             Error::class => function (ContainerInterface $container) {
                 return new Error($container->get('config')['debug']);
             },
-            Dispatch::class => function (ContainerInterface $container) {
-                return new Dispatch($container->get(Resolver::class));
-            },
-            Route::class => function (ContainerInterface $container) {
-                return new Route($container->get(RouterInterface::class));
-            },
             Credential::class => function (ContainerInterface $container) {
                 return new Credential($container->get('config')['headers']);
             },
+            RendererInterface::class => function(ContainerInterface $container) {
+                return new Renderer($container->get('config')['render_path']);
+            }
         ],
     ],
 ];
