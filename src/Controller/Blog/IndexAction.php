@@ -4,17 +4,31 @@ declare(strict_types=1);
 
 namespace App\Controller\Blog;
 
+use App\Repository\PostRepository;
+use Framework\Base\Controller\BaseController;
+use Framework\Template\RendererInterface;
 use Laminas\Diactoros\Response;
-use Laminas\Diactoros\Response\JsonResponse;
+use Laminas\Diactoros\Response\HtmlResponse;
 use Psr\Http\Message\ServerRequestInterface;
 
-class IndexAction
+class IndexAction extends BaseController
 {
+    /**
+     * @var PostRepository
+     */
+    private PostRepository $postRepository;
+
+    public function __construct(RendererInterface $renderer, PostRepository $postRepository)
+    {
+        parent::__construct($renderer);
+        $this->postRepository = $postRepository;
+    }
+
     public function __invoke(ServerRequestInterface $request): Response
     {
-        return new JsonResponse([
-            ['id' => 1, 'title' => 'First post'],
-            ['id' => 2, 'title' => 'Second post'],
-        ]);
+        $posts = $this->postRepository->getAll();
+        return new HtmlResponse($this->render('main.blog.index', [
+            'posts' => $posts,
+        ]));
     }
 }

@@ -31,17 +31,20 @@ use Framework\Template\Renderer;
 <header class="app-header">
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container">
-            <a class="navbar-brand " href="/">Application</a>
+            <a class="navbar-brand " href="<?= $this->encode($this->path('home')); ?>">Application</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse " id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="/about">About</a>
+                        <a class="nav-link active" aria-current="page" href="<?= $this->encode($this->path('blog')); ?>">Blog</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/cabinet">Cabinet</a>
+                        <a class="nav-link" aria-current="page" href="<?= $this->encode($this->path('about')); ?>">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="<?= $this->encode($this->path('cabinet')); ?>">Cabinet</a>
                     </li>
                 </ul>
             </div>

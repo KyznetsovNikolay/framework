@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Framework\Template;
 
+use Framework\Http\Router\RouterInterface;
 use SplStack;
 
 class Renderer implements RendererInterface
@@ -28,10 +29,16 @@ class Renderer implements RendererInterface
      */
     private ?string $extend;
 
-    public function __construct(string $path)
+    /**
+     * @var RouterInterface
+     */
+    private RouterInterface $router;
+
+    public function __construct(string $path, RouterInterface $router)
     {
         $this->path = $path;
         $this->sectionNames = new SplStack();
+        $this->router = $router;
     }
 
     /**
@@ -79,15 +86,32 @@ class Renderer implements RendererInterface
         ob_start();
     }
 
+    public function section($name, $content): void
+    {
+        if ($this->hasSection($name)) {
+            return;
+        }
+        $this->sections[$name] = $content;
+    }
+
     public function endSection(): void
     {
         $content = ob_get_clean();
         $name = $this->sectionNames->pop();
 
-        if (array_key_exists($name, $this->sections)) {
+        if ($this->hasSection($name)) {
             return;
         }
         $this->sections[$name] = $content;
+    }
+
+    public function ensureBlock($name): bool
+    {
+        if ($this->hasSection($name)) {
+            return false;
+        }
+        $this->startSection($name);
+        return true;
     }
 
     /**
@@ -96,6 +120,37 @@ class Renderer implements RendererInterface
      */
     public function renderSection(string $name): string
     {
-        return $this->sections[$name] ?? '';
+        $section = $this->sections[$name] ?? null;
+
+        if ($section instanceof \Closure) {
+            return $section();
+        }
+
+        return $section ?? '';
+    }
+
+    /**
+     * @param $name
+     * @return bool
+     */
+    public function hasSection($name): bool
+    {
+        return array_key_exists($name, $this->sections);
+    }
+
+    /**
+     * @param $name
+     * @param array $params
+     * @return string
+     */
+    public function path($name, array $params = []): string
+    {
+        return $this->router->generate($name, $params);
+    }
+
+    public function encode($string): string
+    {
+        return htmlspecialchars($string, ENT_QUOTES | ENT_SUBSTITUTE);
+
     }
 }

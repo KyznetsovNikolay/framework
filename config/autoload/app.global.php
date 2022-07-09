@@ -14,7 +14,6 @@ use Framework\Template\Renderer;
 use Framework\Template\RendererInterface;
 use Laminas\Diactoros\ServerRequestFactory;
 use Framework\Middleware\Decorator\Profiler;
-use App\Controller\Blog\ShowAction;
 use Laminas\ServiceManager\AbstractFactory\ReflectionBasedAbstractFactory;
 use Psr\Container\ContainerInterface;
 
@@ -22,8 +21,6 @@ return [
     'dependencies' => [
         'invokables' => [
             Profiler::class,
-            App\Controller\Blog\IndexAction::class,
-            ShowAction::class,
         ],
         'abstract_factories' => [
             ReflectionBasedAbstractFactory::class,
@@ -51,7 +48,10 @@ return [
                 return new Credential($container->get('config')['headers']);
             },
             RendererInterface::class => function(ContainerInterface $container) {
-                return new Renderer($container->get('config')['render_path']);
+                return new Renderer(
+                    $container->get('config')['render_path'],
+                    $container->get(RouterInterface::class)
+                );
             }
         ],
     ],
