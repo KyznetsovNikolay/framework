@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Framework\Template;
 
-use Framework\Http\Router\RouterInterface;
+use Framework\Template\Extension\Extension;
 use SplStack;
 
 class Renderer implements RendererInterface
@@ -30,15 +30,19 @@ class Renderer implements RendererInterface
     private ?string $extend;
 
     /**
-     * @var RouterInterface
+     * @var array
      */
-    private RouterInterface $router;
+    private array $extensions = [];
 
-    public function __construct(string $path, RouterInterface $router)
+    public function __construct(string $path)
     {
         $this->path = $path;
         $this->sectionNames = new SplStack();
-        $this->router = $router;
+    }
+
+    public function addExtension(Extension $extension): void
+    {
+        $this->extensions[] = $extension;
     }
 
     /**
@@ -69,6 +73,29 @@ class Renderer implements RendererInterface
         }
 
         return $this->render($this->extend);
+    }
+
+    /**
+     * @param $name
+     * @param $arguments
+     * @return mixed
+     */
+    public function __call($name, $arguments)
+    {
+        foreach ($this->extensions as $extension) {
+            $functions = $extension->getFunctions();
+
+            foreach ($functions as $function) {
+                if ($function->name === $name) {
+                    if ($function->needRenderer) {
+                        return ($function->callback)($this, ...$arguments);
+                    }
+                    return ($function->callback)(...$arguments);
+                }
+            }
+        }
+
+        throw new \InvalidArgumentException('Undefined function "' . $name . '"');
     }
 
     /**
@@ -144,16 +171,6 @@ class Renderer implements RendererInterface
     public function hasSection($name): bool
     {
         return array_key_exists($name, $this->sections);
-    }
-
-    /**
-     * @param $name
-     * @param array $params
-     * @return string
-     */
-    public function path($name, array $params = []): string
-    {
-        return $this->router->generate($name, $params);
     }
 
     public function encode($string): string

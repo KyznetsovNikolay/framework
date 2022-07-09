@@ -10,8 +10,6 @@ use Framework\Http\Router\Handler\NotFound;
 use Framework\Http\Router\RouterInterface;
 use Framework\Middleware\Decorator\Credential;
 use Framework\Middleware\Decorator\Error;
-use Framework\Template\Renderer;
-use Framework\Template\RendererInterface;
 use Laminas\Diactoros\ServerRequestFactory;
 use Framework\Middleware\Decorator\Profiler;
 use Laminas\ServiceManager\AbstractFactory\ReflectionBasedAbstractFactory;
@@ -47,12 +45,6 @@ return [
             Credential::class => function (ContainerInterface $container) {
                 return new Credential($container->get('config')['headers']);
             },
-            RendererInterface::class => function(ContainerInterface $container) {
-                return new Renderer(
-                    $container->get('config')['render_path'],
-                    $container->get(RouterInterface::class)
-                );
-            }
         ],
     ],
 ];
