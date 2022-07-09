@@ -172,10 +172,4 @@ class Renderer implements RendererInterface
     {
         return array_key_exists($name, $this->sections);
     }
-
-    public function encode($string): string
-    {
-        return htmlspecialchars($string, ENT_QUOTES | ENT_SUBSTITUTE);
-
-    }
 }
