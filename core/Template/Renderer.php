@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Framework\Template;
 
+use SplStack;
+
 class Renderer implements RendererInterface
 {
     /**
@@ -11,12 +13,15 @@ class Renderer implements RendererInterface
      */
     private string $path;
 
-    private $sectionNames;
+    /**
+     * @var SplStack
+     */
+    private SplStack $sectionNames;
 
     /**
      * @var array
      */
-    private array $sections;
+    private array $sections = [];
 
     /**
      * @var string|null
@@ -26,7 +31,7 @@ class Renderer implements RendererInterface
     public function __construct(string $path)
     {
         $this->path = $path;
-        $this->sectionNames = new \SplStack();
+        $this->sectionNames = new SplStack();
     }
 
     /**
@@ -74,10 +79,15 @@ class Renderer implements RendererInterface
         ob_start();
     }
 
-    public function endSection()
+    public function endSection(): void
     {
+        $content = ob_get_clean();
         $name = $this->sectionNames->pop();
-        $this->sections[$name] = ob_get_clean();
+
+        if (array_key_exists($name, $this->sections)) {
+            return;
+        }
+        $this->sections[$name] = $content;
     }
 
     /**
