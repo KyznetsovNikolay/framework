@@ -48,13 +48,21 @@ class Renderer implements RendererInterface
      */
     public function render($_view, array $params = []): string
     {
+        $level = ob_get_level();
         $_template = $this->templatePath($_view);
-
-        ob_start();
-        extract($params, EXTR_OVERWRITE);
         $this->extend = null;
-        require $_template;
-        $content = ob_get_clean();
+
+        try {
+            ob_start();
+            extract($params, EXTR_OVERWRITE);
+            require $_template;
+            $content = ob_get_clean();
+        } catch (\Throwable|\Exception $e) {
+            while (ob_get_level() > $level) {
+                ob_end_clean();
+            }
+            throw $e;
+        }
 
         if (!$this->extend) {
             return $content;
