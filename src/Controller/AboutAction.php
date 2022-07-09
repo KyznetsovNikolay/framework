@@ -13,6 +13,6 @@ class AboutAction extends BaseController
 {
     public function __invoke(ServerRequestInterface $request): Response
     {
-        return new HtmlResponse($this->render('main.about'));
+        return new HtmlResponse($this->render('main/about'));
     }
 }

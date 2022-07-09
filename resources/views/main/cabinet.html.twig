@@ -1,0 +1,29 @@
+{% extends 'main/pieces/column.html.twig' %}
+
+{% block title %}Cabinet{% endblock %}
+
+{% block sidebar %}
+    <div class="col-md-3">
+        <div class="card" style="width: 18rem;">
+            <div class="card-header">
+                Cabinet
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">Cabinet menu</li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block breadcrumbs %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('home') }}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Cabinet</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block main %}
+    <p>I'am logged in as {{ username }}</p>
+{% endblock %}

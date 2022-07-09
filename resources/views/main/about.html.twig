@@ -1,14 +1,8 @@
-<?php
+{% extends'main/pieces/column.html.twig' %}
 
-use Framework\Template\Renderer;
+{% block title %}About{% endblock %}
 
-/** @var Renderer $this */
-$this->extend('main.pieces.column');
-?>
-
-<?php $this->startSection('title'); ?>About<?php $this->endSection(); ?>
-
-<?php $this->startSection('sidebar'); ?>
+{% block sidebar %}
 <div class="col-md-3">
     <div class="card" style="width: 18rem;">
         <div class="card-header">
@@ -19,19 +13,19 @@ $this->extend('main.pieces.column');
         </ul>
     </div>
 </div>
-<?php $this->endSection(); ?>
+{% endblock %}
 
-<?php $this->startSection('breadcrumbs'); ?>
+{% block breadcrumbs %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="/">Home</a></li>
             <li class="breadcrumb-item active" aria-current="page">About</li>
         </ol>
     </nav>
-<?php $this->endSection(); ?>
+{% endblock %}
 
-<?php $this->startSection('main'); ?>
+{% block main %}
     <p>About page</p>
-<?php $this->endSection(); ?>
+{% endblock %}
 
 

@@ -1,0 +1,11 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-9">
+            {% block main %}{% endblock %}
+        </div>
+        {% block sidebar %}{% endblock %}
+    </div>
+{% endblock %}
+

@@ -27,7 +27,7 @@ class IndexAction extends BaseController
     public function __invoke(ServerRequestInterface $request): Response
     {
         $posts = $this->postRepository->getAll();
-        return new HtmlResponse($this->render('main.blog.index', [
+        return new HtmlResponse($this->render('main/blog/index', [
             'posts' => $posts,
         ]));
     }

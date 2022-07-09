@@ -30,7 +30,7 @@ class ShowAction extends BaseController
             return $next($request);
         }
 
-        return new HtmlResponse($this->render('main.blog.show', [
+        return new HtmlResponse($this->render('main/blog/show', [
             'post' => $post,
         ]));
     }

@@ -15,7 +15,7 @@ class CabinetAction extends BaseController
     public function __invoke(ServerRequestInterface $request): Response
     {
         $username = $request->getAttribute(Auth::USER);
-        return new HtmlResponse($this->render('main.cabinet', [
+        return new HtmlResponse($this->render('main/cabinet', [
             'username' => $username,
         ]));
     }
