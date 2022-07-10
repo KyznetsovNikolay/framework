@@ -10,6 +10,8 @@ use Framework\Http\Router\Handler\NotFound;
 use Framework\Http\Router\RouterInterface;
 use Framework\Middleware\Decorator\Credential;
 use Framework\Middleware\Decorator\Error;
+use Framework\Middleware\Error\ErrorResponseGenerator;
+use Framework\Middleware\Error\HtmlResponseGenerator;
 use Framework\Template\RendererInterface;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\ServerRequestFactory;
@@ -47,9 +49,12 @@ return [
                 );
             },
             Error::class => function (ContainerInterface $container) {
-                return new Error(
+                return new Error($container->get(ErrorResponseGenerator::class));
+            },
+            ErrorResponseGenerator::class => function (ContainerInterface $container) {
+                return new HtmlResponseGenerator(
                     $container->get(RendererInterface::class),
-                    $container->get('config')['debug']
+                    $container->get('config')['debug'],
                 );
             },
             Credential::class => function (ContainerInterface $container) {
