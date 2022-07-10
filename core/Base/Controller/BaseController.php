@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Framework\Base\Controller;
 
 use Framework\Template\RendererInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class BaseController
+abstract class BaseController implements RequestHandlerInterface
 {
     private RendererInterface $renderer;
 
