@@ -10,11 +10,12 @@ use Framework\Http\Router\Handler\NotFound;
 use Framework\Http\Router\RouterInterface;
 use Framework\Middleware\Decorator\Credential;
 use Framework\Middleware\Decorator\Error;
-use Framework\Middleware\Pipeline\Pipeline;
 use Framework\Template\RendererInterface;
+use Laminas\Diactoros\Response;
 use Laminas\Diactoros\ServerRequestFactory;
 use Framework\Middleware\Decorator\Profiler;
 use Laminas\ServiceManager\AbstractFactory\ReflectionBasedAbstractFactory;
+use Laminas\Stratigility\MiddlewarePipe;
 use Psr\Container\ContainerInterface;
 
 return [
@@ -29,7 +30,7 @@ return [
             Application::class => function (ContainerInterface $container) {
                 $request = ServerRequestFactory::fromGlobals();
                 return new Application(
-                    $container->get(Pipeline::class),
+                    $container->get(MiddlewarePipe::class),
                     $request,
                     $container->get(Resolver::class),
                     $container->get(RouterInterface::class),
@@ -40,7 +41,10 @@ return [
                 return new AuraRouterAdapter(new RouterContainer());
             },
             Resolver::class => function (ContainerInterface $container) {
-                return new Resolver($container);
+                return new Resolver(
+                    $container,
+                    $container->get(Response::class)
+                );
             },
             Error::class => function (ContainerInterface $container) {
                 return new Error(

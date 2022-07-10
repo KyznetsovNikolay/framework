@@ -6,23 +6,24 @@ namespace Framework\Middleware\Decorator;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class Credential
+class Credential implements MiddlewareInterface
 {
     /**
      * @var array
      */
-    private $headers;
+    private array $headers;
 
     public function __construct(array $headers)
     {
         $this->headers = $headers;
     }
 
-    public function __invoke(ServerRequestInterface $request, callable $next): ResponseInterface
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        /** @var ResponseInterface $response */
-        $response = $next($request);
+        $response = $handler->handle($request);
         if (count($this->headers)) {
             foreach ($this->headers as $header => $value) {
                 $response = $response->withHeader($header, $value);

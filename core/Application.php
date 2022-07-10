@@ -7,16 +7,19 @@ namespace Framework;
 use Framework\Http\Resolver;
 use Framework\Http\Router\RouteData;
 use Framework\Http\Router\RouterInterface;
-use Framework\Middleware\Pipeline\Pipeline;
+use Laminas\Stratigility\Middleware\PathMiddlewareDecorator;
+use Laminas\Stratigility\MiddlewarePipe;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class Application
+class Application implements MiddlewareInterface, RequestHandlerInterface
 {
     /**
      * @var Resolver
      */
-    private $resolver;
+    private Resolver $resolver;
 
     /**
      * @var callable
@@ -34,24 +37,24 @@ class Application
     private RouterInterface $router;
 
     /**
-     * @var Pipeline
+     * @var MiddlewarePipe
      */
-    private Pipeline $pipeline;
+    private MiddlewarePipe $pipeline;
 
     /**
      * Application constructor.
-     * @param Pipeline $pipeline
+     * @param MiddlewarePipe $pipeline
      * @param ServerRequestInterface $request
      * @param Resolver $resolver
      * @param RouterInterface $router
-     * @param callable $default
+     * @param RequestHandlerInterface $default
      */
     public function __construct(
-        Pipeline $pipeline,
+        MiddlewarePipe $pipeline,
         ServerRequestInterface $request,
         Resolver $resolver,
         RouterInterface $router,
-        callable $default
+        RequestHandlerInterface $default
     ) {
         $this->resolver = $resolver;
         $this->default = $default;
@@ -61,39 +64,24 @@ class Application
     }
 
     /**
-     * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
-     * @param callable $next
-     * @return ResponseInterface
-     */
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next): ResponseInterface
-    {
-        return ($this->pipeline)($request, $response, $next);
-    }
-
-    /**
      * @param string $path
      * @param string|null $middleware
      */
     public function pipe(string $path, string $middleware = null): void
     {
         if (!$middleware) {
-            ($this->pipeline)->pipe($this->resolver->resolve($path));
+            $this->pipeline->pipe($this->resolver->resolve($path));
         } else {
-            $uriPath = substr($this->request->getUri()->getPath(), 1, strlen($path));
-            if ($path === $uriPath) {
-                ($this->pipeline)->pipe($this->resolver->resolve($middleware));
-            }
+            $this->pipeline->pipe(new PathMiddlewareDecorator($path, $this->resolver->resolve($middleware)));
         }
     }
 
     /**
-     * @param ResponseInterface $response
      * @return ResponseInterface
      */
-    public function run(ResponseInterface $response): ResponseInterface
+    public function run(): ResponseInterface
     {
-        return $this($this->request, $response, $this->default);
+        return $this->handle($this->request);
     }
 
     /**
@@ -172,5 +160,15 @@ class Application
     public function delete($name, $path, $handler, array $options = []): void
     {
         $this->route($name, $path, $handler, ['DELETE'], $options);
+    }
+
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    {
+        return $this->pipeline->process($request, $handler);
+    }
+
+    public function handle(ServerRequestInterface $request): ResponseInterface
+    {
+        return $this->pipeline->process($request, $this->default);
     }
 }

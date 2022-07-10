@@ -1,0 +1,45 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Framework\Middleware\Pipeline;
+
+use Laminas\Stratigility\Exception\MissingResponseException;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+
+class SinglePassMiddlewareDecorator implements MiddlewareInterface
+{
+    /**
+     * @var callable
+     */
+    private $middleware;
+
+    public function __construct(callable $middleware)
+    {
+        $this->middleware = $middleware;
+    }
+
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    {
+        $response = ($this->middleware)(
+            $request,
+            $this->decorateHandler($handler)
+        );
+
+        if (! $response instanceof ResponseInterface) {
+            throw MissingResponseException::forCallableMiddleware($this->middleware);
+        }
+
+        return $response;
+    }
+
+    private function decorateHandler(RequestHandlerInterface $handler): callable
+    {
+        return function ($request) use ($handler) {
+            return $handler->handle($request);
+        };
+    }
+}

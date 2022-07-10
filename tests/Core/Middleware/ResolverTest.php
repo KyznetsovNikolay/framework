@@ -26,13 +26,11 @@ class ResolverTest extends TestCase
      */
     public function testDirect($handler): void
     {
-        $resolver = new Resolver(new DummyContainer());
+        $resolver = new Resolver(new DummyContainer(), new Response());
         $middleware = $resolver->resolve($handler);
 
-        /** @var ResponseInterface $response */
-        $response = $middleware(
+        $response = $middleware->process(
             (new ServerRequest())->withAttribute('attribute', $value = 'value'),
-            new Response(),
             new NotFoundMiddleware()
         );
 
@@ -45,13 +43,11 @@ class ResolverTest extends TestCase
      */
     public function testNext($handler): void
     {
-        $resolver = new Resolver(new DummyContainer());
+        $resolver = new Resolver(new DummyContainer(), new Response());
         $middleware = $resolver->resolve($handler);
 
-        /** @var ResponseInterface $response */
-        $response = $middleware(
+        $response = $middleware->process(
             (new ServerRequest())->withAttribute('next', true),
-            new Response(),
             new NotFoundMiddleware()
         );
 
@@ -72,7 +68,7 @@ class ResolverTest extends TestCase
             'Callable Object' => [new CallableMiddleware()],
             'DoublePass Callback' => [function (ServerRequestInterface $request, ResponseInterface $response, callable $next) {
                 if ($request->getAttribute('next')) {
-                    return $next($request);
+                    return $next($request, $response);
                 }
                 return $response
                     ->withHeader('X-Header', $request->getAttribute('attribute'));
@@ -86,17 +82,15 @@ class ResolverTest extends TestCase
 
     public function testArray(): void
     {
-        $resolver = new Resolver(new DummyContainer());
+        $resolver = new Resolver(new DummyContainer(), new Response());
 
         $middleware = $resolver->resolve([
             new DummyMiddleware(),
             new CallableMiddleware()
         ]);
 
-        /** @var ResponseInterface $response */
-        $response = $middleware(
+        $response = $middleware->process(
             (new ServerRequest())->withAttribute('attribute', $value = 'value'),
-            new Response(),
             new NotFoundMiddleware()
         );
 

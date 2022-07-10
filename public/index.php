@@ -1,7 +1,6 @@
 <?php
 
 use Framework\Application;
-use Laminas\Diactoros\Response;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use Laminas\ServiceManager\ServiceManager;
 
@@ -18,7 +17,7 @@ $app = $container->get(Application::class);
 require 'config/middleware.php';
 require 'config/routes.php';
 
-$response = $app->run(new Response());
+$response = $app->run();
 
 $emitter = new SapiEmitter();
 $emitter->emit($response);
