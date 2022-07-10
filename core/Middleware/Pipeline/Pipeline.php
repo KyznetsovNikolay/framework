@@ -9,7 +9,10 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class Pipeline
 {
-    private $queue;
+    /**
+     * @var \SplQueue
+     */
+    private \SplQueue $queue;
 
     public function __construct()
     {

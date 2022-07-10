@@ -10,6 +10,7 @@ use Framework\Http\Router\Handler\NotFound;
 use Framework\Http\Router\RouterInterface;
 use Framework\Middleware\Decorator\Credential;
 use Framework\Middleware\Decorator\Error;
+use Framework\Middleware\Pipeline\Pipeline;
 use Framework\Template\RendererInterface;
 use Laminas\Diactoros\ServerRequestFactory;
 use Framework\Middleware\Decorator\Profiler;
@@ -28,6 +29,7 @@ return [
             Application::class => function (ContainerInterface $container) {
                 $request = ServerRequestFactory::fromGlobals();
                 return new Application(
+                    $container->get(Pipeline::class),
                     $request,
                     $container->get(Resolver::class),
                     $container->get(RouterInterface::class),
