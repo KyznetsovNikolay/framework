@@ -10,6 +10,7 @@ use Framework\Http\Router\Handler\NotFound;
 use Framework\Http\Router\RouterInterface;
 use Framework\Middleware\Decorator\Credential;
 use Framework\Middleware\Decorator\Error;
+use Framework\Template\RendererInterface;
 use Laminas\Diactoros\ServerRequestFactory;
 use Framework\Middleware\Decorator\Profiler;
 use Laminas\ServiceManager\AbstractFactory\ReflectionBasedAbstractFactory;
@@ -30,7 +31,7 @@ return [
                     $request,
                     $container->get(Resolver::class),
                     $container->get(RouterInterface::class),
-                    new NotFound()
+                    $container->get(NotFound::class)
                 );
             },
             RouterInterface::class => function () {
@@ -40,7 +41,10 @@ return [
                 return new Resolver($container);
             },
             Error::class => function (ContainerInterface $container) {
-                return new Error($container->get('config')['debug']);
+                return new Error(
+                    $container->get(RendererInterface::class),
+                    $container->get('config')['debug']
+                );
             },
             Credential::class => function (ContainerInterface $container) {
                 return new Credential($container->get('config')['headers']);

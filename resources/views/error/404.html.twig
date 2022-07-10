@@ -1,0 +1,16 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}404 - Not found{% endblock %}
+
+{% block breadcrumbs %}
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('home') }}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Error</li>
+        </ol>
+    </nav>
+{% endblock %}
+
+{% block content %}
+    <h1>404 - Not Found</h1>
+{% endblock %}
