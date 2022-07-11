@@ -15,15 +15,15 @@ class NotFound implements RequestHandlerInterface
     /**
      * @var RendererInterface
      */
-    private RendererInterface $template;
+    private RendererInterface $renderer;
 
-    public function __construct(RendererInterface $template)
+    public function __construct(RendererInterface $renderer)
     {
-        $this->template = $template;
+        $this->renderer = $renderer;
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        return new HtmlResponse($this->template->render('error/404'), 404);
+        return new HtmlResponse($this->renderer->render('error/404'), 404);
     }
 }
