@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Framework\Middleware\Error;
 
 use Framework\Template\RendererInterface;
-use Laminas\Diactoros\Response;
-use Laminas\Diactoros\Response\HtmlResponse;
 use Laminas\Stratigility\Utils;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -16,23 +14,44 @@ class DebugErrorResponseGenerator implements ErrorResponseGenerator
     /**
      * @var RendererInterface
      */
-    private RendererInterface $template;
+    private RendererInterface $renderer;
 
     /**
      * @var string
      */
     private string $view;
 
-    public function __construct(RendererInterface $template, string $view)
-    {
-        $this->template = $template;
+    /**
+     * @var ResponseInterface
+     */
+    private ResponseInterface $response;
+
+    public function __construct(
+        RendererInterface $renderer,
+        ResponseInterface $response,
+        string $view
+    ) {
+        $this->renderer = $renderer;
         $this->view = $view;
+        $this->response = $response;
     }
 
     public function generate(\Throwable $e, ServerRequestInterface $request): ResponseInterface
     {
-        return new HtmlResponse($this->template->render($this->view, [
-            'exception' => $e,
-        ]), Utils::getStatusCode($e, new Response()));
+        $response = $this->response->withStatus(Utils::getStatusCode($e, $this->response));
+
+        $response
+            ->getBody()
+            ->write(
+                $this->renderer->render(
+                    $this->view,
+                    [
+                        'request' => $request,
+                        'exception' => $e,
+                    ]
+                )
+            );
+
+        return $response;
     }
 }

@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Framework\Middleware\Error;
 
 use Framework\Template\RendererInterface;
-use Laminas\Diactoros\Response;
-use Laminas\Diactoros\Response\HtmlResponse;
 use Laminas\Stratigility\Utils;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -16,27 +14,46 @@ class HtmlResponseGenerator implements ErrorResponseGenerator
     /**
      * @var RendererInterface
      */
-    private RendererInterface $template;
+    private RendererInterface $renderer;
 
     /**
      * @var array
      */
     private array $views;
 
-    public function __construct(RendererInterface $template, array $views)
-    {
-        $this->template = $template;
+    /**
+     * @var ResponseInterface
+     */
+    private ResponseInterface $response;
+
+    public function __construct(
+        RendererInterface $renderer,
+        ResponseInterface $response,
+        array $views
+    ) {
+        $this->renderer = $renderer;
         $this->views = $views;
+        $this->response = $response;
     }
 
     public function generate(\Throwable $e, ServerRequestInterface $request): ResponseInterface
     {
-        $code = Utils::getStatusCode($e, new Response());
-        $view = $this->getView($code);
+        $code = Utils::getStatusCode($e, $this->response);
 
-        return new HtmlResponse($this->template->render($view, [
-            'exception' => $e,
-        ]), $code);
+        $response = $this->response->withStatus($code);
+        $response
+            ->getBody()
+            ->write(
+                $this->renderer->render(
+                    $this->getView($code),
+                    [
+                        'request' => $request,
+                        'exception' => $e,
+                    ]
+                )
+            );
+
+        return $response;
     }
 
     /**
