@@ -5,36 +5,49 @@ declare(strict_types=1);
 namespace Framework\Middleware\Error;
 
 use Framework\Template\RendererInterface;
-use Framework\Utils\Utils;
+use Laminas\Diactoros\Response;
 use Laminas\Diactoros\Response\HtmlResponse;
+use Laminas\Stratigility\Utils;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 class HtmlResponseGenerator implements ErrorResponseGenerator
 {
     /**
-     * @var bool
-     */
-    private bool $debug;
-
-    /**
      * @var RendererInterface
      */
     private RendererInterface $template;
 
-    public function __construct(RendererInterface $template, bool $debug = false)
+    /**
+     * @var array
+     */
+    private array $views;
+
+    public function __construct(RendererInterface $template, array $views)
     {
-        $this->debug = $debug;
         $this->template = $template;
+        $this->views = $views;
     }
 
     public function generate(\Throwable $e, ServerRequestInterface $request): ResponseInterface
     {
-        $view = $this->debug ? 'error/debug' : 'error/error';
+        $code = Utils::getStatusCode($e, new Response());
+        $view = $this->getView($code);
 
         return new HtmlResponse($this->template->render($view, [
-            'request' => $request,
             'exception' => $e,
-        ]), Utils::getStatusCode($e));
+        ]), $code);
+    }
+
+    /**
+     * @param $code
+     * @return string
+     */
+    private function getView($code): string
+    {
+        if (array_key_exists($code, $this->views)) {
+            return $this->views[$code];
+        }
+        return $this->views['error'];
     }
 }
