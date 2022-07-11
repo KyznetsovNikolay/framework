@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Framework\Middleware\Decorator;
 
 use Framework\Middleware\Error\ErrorResponseGenerator;
-use Framework\Template\RendererInterface;
-use Laminas\Diactoros\Response\HtmlResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
