@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'X-Developer' => 'Kyznetsov',
+    'X-Develop' => 'Kyznetsov'
 ];

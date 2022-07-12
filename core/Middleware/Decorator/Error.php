@@ -33,11 +33,7 @@ class Error implements MiddlewareInterface
         try {
             return $handler->handle($request);
         } catch (\Throwable $e) {
-
-            foreach ($this->listeners as $listener) {
-                $listener->set($e, $request);
-            }
-
+            $this->log($e, $request);
             return $this->generator->generate($e, $request);
         }
     }
@@ -50,5 +46,12 @@ class Error implements MiddlewareInterface
     {
         $this->listeners[] = $listener;
         return $this;
+    }
+
+    public function log(\Throwable $e, ServerRequestInterface $request): void
+    {
+        foreach ($this->listeners as $listener) {
+            $listener->log($e, $request);
+        }
     }
 }

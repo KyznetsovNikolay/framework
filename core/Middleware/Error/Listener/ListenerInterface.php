@@ -13,5 +13,5 @@ interface ListenerInterface
      * @param ServerRequestInterface $request
      * @return void
      */
-    public function set(\Throwable $e, ServerRequestInterface $request): void;
+    public function log(\Throwable $e, ServerRequestInterface $request): void;
 }

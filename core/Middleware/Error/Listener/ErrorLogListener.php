@@ -24,11 +24,11 @@ class ErrorLogListener implements ListenerInterface
      * @param ServerRequestInterface $request
      * @return void
      */
-    public function set(\Throwable $e, ServerRequestInterface $request): void
+    public function log(\Throwable $e, ServerRequestInterface $request): void
     {
         $this->logger->error($e->getMessage(), [
             'exception' => $e,
-            'request' => self::extractRequest($request),
+            'request' => $this->extractRequest($request),
         ]);
     }
 
@@ -36,7 +36,7 @@ class ErrorLogListener implements ListenerInterface
      * @param ServerRequestInterface $request
      * @return array
      */
-    private static function extractRequest(ServerRequestInterface $request): array
+    private function extractRequest(ServerRequestInterface $request): array
     {
         return [
             'method' => $request->getMethod(),
