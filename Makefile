@@ -42,6 +42,9 @@ app_bash:
 app_run:
 	${DOCKER_COMPOSE} exec ${APP_CONTAINER} php public/index.php
 
+cache_clear:
+	${DOCKER_COMPOSE} run --rm ${APP_CONTAINER} rm -rf var/log
+
 ##################
 # Tests
 ##################

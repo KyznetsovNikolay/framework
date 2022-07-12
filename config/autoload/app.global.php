@@ -11,6 +11,7 @@ use Framework\Http\Router\RouterInterface;
 use Framework\Middleware\Decorator\Credential;
 use Framework\Middleware\Decorator\Error;
 use Framework\Middleware\Error\ErrorResponseGenerator;
+use Framework\Middleware\Error\Listener\ErrorLogListener;
 use Laminas\Diactoros\Response;
 use Laminas\Diactoros\ServerRequestFactory;
 use Framework\Middleware\Decorator\Profiler;
@@ -50,10 +51,10 @@ return [
                 );
             },
             Error::class => function (ContainerInterface $container) {
-                return new Error(
-                    $container->get(ErrorResponseGenerator::class),
-                    $container->get(LoggerInterface::class)
-                );
+                $errorHandler =  new Error($container->get(ErrorResponseGenerator::class));
+                $errorHandler->addListener($container->get(ErrorLogListener::class));
+
+                return $errorHandler;
             },
             Credential::class => function (ContainerInterface $container) {
                 return new Credential($container->get('config')['headers']);

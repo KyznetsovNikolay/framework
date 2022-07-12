@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Framework\Middleware\Decorator;
 
 use Framework\Middleware\Error\ErrorResponseGenerator;
+use Framework\Middleware\Error\Listener\ListenerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Log\LoggerInterface;
 
 class Error implements MiddlewareInterface
 {
@@ -19,14 +19,13 @@ class Error implements MiddlewareInterface
     private ErrorResponseGenerator $generator;
 
     /**
-     * @var LoggerInterface
+     * @var ListenerInterface[]
      */
-    private LoggerInterface $logger;
+    private array $listeners = [];
 
-    public function __construct(ErrorResponseGenerator $generator, LoggerInterface $logger)
+    public function __construct(ErrorResponseGenerator $generator)
     {
         $this->generator = $generator;
-        $this->logger = $logger;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -35,27 +34,21 @@ class Error implements MiddlewareInterface
             return $handler->handle($request);
         } catch (\Throwable $e) {
 
-            $this->logger->error($e->getMessage(), [
-                'exception' => $e,
-                'request' => self::extractRequest($request),
-            ]);
+            foreach ($this->listeners as $listener) {
+                $listener->set($e, $request);
+            }
 
             return $this->generator->generate($e, $request);
         }
     }
 
     /**
-     * @param ServerRequestInterface $request
-     * @return array
+     * @param ListenerInterface $listener
+     * @return Error
      */
-    private static function extractRequest(ServerRequestInterface $request): array
+    public function addListener(ListenerInterface $listener): self
     {
-        return [
-            'method' => $request->getMethod(),
-            'url' => (string)$request->getUri(),
-            'server' => $request->getServerParams(),
-            'cookies' => $request->getCookieParams(),
-            'body' => $request->getParsedBody(),
-        ];
+        $this->listeners[] = $listener;
+        return $this;
     }
 }
