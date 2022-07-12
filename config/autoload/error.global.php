@@ -16,5 +16,6 @@ return [
             'error' => 'error/error',
         ],
     ],
+    'config_cache_enabled' => false,
     'debug' => false,
 ];
