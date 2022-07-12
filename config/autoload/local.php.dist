@@ -2,7 +2,6 @@
 
 
 return [
-    'debug' => true,
     'auth' => [
         'users' => [],
     ],
