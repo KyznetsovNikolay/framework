@@ -45,6 +45,10 @@ app_run:
 cache_clear:
 	${DOCKER_COMPOSE} run --rm ${APP_CONTAINER} rm -rf var/log
 
+dev:
+	${DOCKER_COMPOSE} run --rm ${APP_CONTAINER} cp config/autoload/error.local.php.dist config/autoload/error.local.php
+	${DOCKER_COMPOSE} run --rm ${APP_CONTAINER} cp config/autoload/local.php.dist config/autoload/local.php
+
 ##################
 # Tests
 ##################
