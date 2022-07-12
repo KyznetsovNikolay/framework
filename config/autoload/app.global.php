@@ -16,7 +16,10 @@ use Laminas\Diactoros\ServerRequestFactory;
 use Framework\Middleware\Decorator\Profiler;
 use Laminas\ServiceManager\AbstractFactory\ReflectionBasedAbstractFactory;
 use Laminas\Stratigility\MiddlewarePipe;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
 
 return [
     'dependencies' => [
@@ -47,11 +50,23 @@ return [
                 );
             },
             Error::class => function (ContainerInterface $container) {
-                return new Error($container->get(ErrorResponseGenerator::class));
+                return new Error(
+                    $container->get(ErrorResponseGenerator::class),
+                    $container->get(LoggerInterface::class)
+                );
             },
             Credential::class => function (ContainerInterface $container) {
                 return new Credential($container->get('config')['headers']);
             },
+            LoggerInterface::class => function (ContainerInterface $container)
+            {
+                $logger = new Logger('App');
+                $logger->pushHandler(new StreamHandler(
+                    'var/log/app.log',
+                    $container->get('config')['debug'] ? Logger::DEBUG : Logger::WARNING
+                ));
+                return $logger;
+            }
         ],
     ],
 ];
