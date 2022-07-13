@@ -1,9 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-use Framework\Console\Application;
-use Framework\Console\Input;
-use Framework\Console\Output;
+use Symfony\Component\Console\Application;
 
 chdir(dirname(__DIR__));
 require_once  'vendor/autoload.php';
@@ -11,10 +9,9 @@ require_once  'vendor/autoload.php';
 $container = require 'config/container.php';
 
 try {
-    /** @var Application $cli */
     $cli = $container->get(Application::class);
-    $cli->run(new Input($argv), new Output());
-} catch (InvalidArgumentException $e) {
+    $cli->run();
+} catch (Exception $e) {
     echo $e->getMessage() . PHP_EOL;
 }
 
