@@ -8,11 +8,23 @@ class Output
 {
     public function write(string $message): void
     {
-        echo $message;
+        echo $this->process($message);
     }
 
     public function writeln(string $message): void
     {
-        echo $message . PHP_EOL;
+        echo $this->process($message) . PHP_EOL;
+    }
+
+    /**
+     * @param string $message
+     * @return string
+     */
+    public function process(string $message): string
+    {
+        return strtr($message, [
+            '<comment>' => "\033[33m", '</comment>' => "\033[0m",
+            '<info>' => "\033[32m", '</info>' => "\033[0m",
+        ]);
     }
 }
