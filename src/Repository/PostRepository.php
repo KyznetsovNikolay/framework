@@ -5,17 +5,15 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Model\Post;
+use PDO;
 
 class PostRepository
 {
-    private array $posts;
+    private PDO $pdo;
 
-    public function __construct()
+    public function __construct(PDO $pdo)
     {
-        $this->posts = [
-            new Post(1, new \DateTimeImmutable(), 'The First Post', 'The First Post Content'),
-            new Post(2, new \DateTimeImmutable(), 'The Second Post', 'The Second Post Content'),
-        ];
+        $this->pdo = $pdo;
     }
 
     /**
@@ -23,16 +21,27 @@ class PostRepository
      */
     public function getAll(): array
     {
-        return array_reverse($this->posts);
+        $stmt = $this->pdo->query('SELECT * FROM posts ORDER BY id DESC');
+
+        return array_map([$this, 'hydratePost'], $stmt->fetchAll());
     }
 
     public function find($id): ?Post
     {
-        foreach ($this->posts as $post) {
-            if ($post->id === (int)$id) {
-                return $post;
-            }
-        }
-        return null;
+        $stmt = $this->pdo->prepare('SELECT * FROM posts WHERE id = :id');
+        $stmt->bindValue(':id', $id);
+        $stmt->execute();
+
+        return ($row = $stmt->fetch()) ? $this->hydratePost($row) : null;
+    }
+
+    private function hydratePost(array $row): Post
+    {
+        return new Post(
+            (int)$row['id'],
+            new \DateTimeImmutable($row['date']),
+            $row['title'],
+            $row['content']
+        );
     }
 }

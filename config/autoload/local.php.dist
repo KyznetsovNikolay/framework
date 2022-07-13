@@ -5,6 +5,11 @@ return [
     'auth' => [
         'users' => [],
     ],
+    'pdo' => [
+        'dsn' => 'mysql:host=hostname;port=3306;dbname=dbname',
+        'username' => '',
+        'password' => '',
+    ],
     'headers' => [],
     'render_path' => '',
 ];
