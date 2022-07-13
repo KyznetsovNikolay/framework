@@ -49,6 +49,9 @@ dev:
 	${DOCKER_COMPOSE} run --rm ${APP_CONTAINER} cp config/autoload/error.local.php.dist config/autoload/error.local.php
 	${DOCKER_COMPOSE} run --rm ${APP_CONTAINER} cp config/autoload/local.php.dist config/autoload/local.php
 
+console:
+	${DOCKER_COMPOSE} run --rm ${APP_CONTAINER} bin/console.php
+
 ##################
 # Tests
 ##################

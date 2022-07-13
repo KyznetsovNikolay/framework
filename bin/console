@@ -1,0 +1,18 @@
+#!/usr/bin/env php
+<?php
+
+use Framework\Console\Command\CacheClearCommand;
+
+chdir(dirname(__DIR__));
+require_once  'vendor/autoload.php';
+
+$container = require 'config/container.php';
+/**
+ * @var CacheClearCommand $command
+ * @var \Psr\Log\LoggerInterface $logger
+ */
+$command = $container->get(CacheClearCommand::class);
+$logger = $container->get(\Psr\Log\LoggerInterface::class);
+$args = array_splice($argv, 1);
+$command->execute($args);
+$logger->info('Clear cache', ['path' => 'var/tata']);

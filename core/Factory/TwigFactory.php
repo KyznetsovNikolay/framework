@@ -16,7 +16,7 @@ class TwigFactory
         $params = $container->get('config')['twig'];
         $debug = $container->get('config')['debug'];
         $config = [
-            'cache' => $debug ? false : 'var/cache/twig',
+            'cache' => $debug ? 'var/cache/twig' : false,
             'auto_reload' => $debug,
             'strict_variables' => $debug,
             'debug' => $debug
