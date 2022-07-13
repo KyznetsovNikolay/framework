@@ -22,9 +22,13 @@ class Output
      */
     public function process(string $message): string
     {
+        $done = "\033[0m";
+
         return strtr($message, [
-            '<comment>' => "\033[33m", '</comment>' => "\033[0m",
-            '<info>' => "\033[32m", '</info>' => "\033[0m",
+            '<comment>' => "\033[33m", '</comment>' => $done,
+            '<info>' => "\033[32m", '</info>' => $done,
+            '<error>' => "\033[31m", '</error>' => $done,
+            '<text>' => "\033[29m", '</text>' => $done,
         ]);
     }
 }
