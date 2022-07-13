@@ -18,7 +18,9 @@
     "laminas/laminas-stratigility": "^3.5",
     "monolog/monolog": "^2.7",
     "symfony/console": "^5.4",
-    "ext-pdo": "*"
+    "ext-pdo": "*",
+    "robmorgan/phinx": "^0.12.11",
+    "fakerphp/faker": "^1.19"
   },
   "require-dev": {
     "phpunit/phpunit": "^9.5",
