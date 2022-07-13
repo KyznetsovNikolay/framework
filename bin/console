@@ -3,6 +3,7 @@
 
 use Framework\Console\Command\CacheClearCommand;
 use Framework\Console\Input;
+use Framework\Console\Output;
 
 chdir(dirname(__DIR__));
 require_once  'vendor/autoload.php';
@@ -15,6 +16,7 @@ $container = require 'config/container.php';
 $command = $container->get(CacheClearCommand::class);
 $logger = $container->get(\Psr\Log\LoggerInterface::class);
 $input = new Input($argv);
+$output = new Output();
 
-$command->execute($input);
+$command->execute($input, $output);
 $logger->info('Clear cache', ['path' => 'var/tata']);

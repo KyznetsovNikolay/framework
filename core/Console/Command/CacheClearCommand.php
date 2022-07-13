@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Framework\Console\Command;
 
 use Framework\Console\Input;
+use Framework\Console\Output;
 
 class CacheClearCommand
 {
@@ -13,19 +14,15 @@ class CacheClearCommand
         'db' => 'var/cache/db',
     ];
 
-    public function execute(Input $input): void
+    public function execute(Input $input, Output $output): void
     {
-        echo 'Clearing cache' . PHP_EOL;
+        $output->writeln('Clearing cache');
 
         $alias = $input->getArgument(0);
 
         if (empty($alias)) {
             $options = array_merge(['all'], array_keys($this->paths));
-            do {
-                fwrite(\STDOUT, 'Choose path [' . implode(',', $options) . ']: ');
-                $choose = trim(fgets(\STDIN));
-            } while (!\in_array($choose, $options, true));
-            $alias = $choose;
+            $alias = $input->choose('Choose path', $options);
         }
 
         if ($alias === 'all') {
@@ -39,14 +36,14 @@ class CacheClearCommand
 
         foreach ($paths as $path) {
             if (file_exists($path)) {
-                echo 'Remove ' . $path . PHP_EOL;
+                $output->writeln('Remove ' . $path);
                 $this->delete($path);
             } else {
-                echo 'Skip ' . $path . PHP_EOL;
+                $output->writeln('Skip ' . $path);
             }
         }
 
-        echo 'Done!' . PHP_EOL;
+        $output->writeln('Done!');
     }
 
     private function delete(string $path): void
