@@ -10,7 +10,11 @@ require_once  'vendor/autoload.php';
 
 $container = require 'config/container.php';
 
-/** @var Application $cli */
-$cli = $container->get(Application::class);
-$cli->run(new Input($argv), new Output());
+try {
+    /** @var Application $cli */
+    $cli = $container->get(Application::class);
+    $cli->run(new Input($argv), new Output());
+} catch (InvalidArgumentException $e) {
+    echo $e->getMessage() . PHP_EOL;
+}
 
