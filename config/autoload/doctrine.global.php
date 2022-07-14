@@ -1,10 +1,9 @@
 <?php
 
-use ContainerInteropDoctrine\EntityManagerFactory;
-use Doctrine\DBAL\Driver\PDO\MySQL\Driver;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\Persistence\Mapping\Driver\MappingDriverChain;
+use Roave\PsrContainerDoctrine\EntityManagerFactory;
 
 return [
     'dependencies' => [
@@ -15,8 +14,9 @@ return [
     'doctrine' => [
         'connection' => [
             'orm_default' => [
-                'driver_class' => Driver::class,
-                'pdo' => PDO::class,
+                'params' => [
+                    'url' => 'mysql://docker:docker@mysql/framework'
+                ],
             ],
         ],
         'driver' => [
@@ -29,7 +29,9 @@ return [
             'entities' => [
                 'class' => AnnotationDriver::class,
                 'cache' => 'array',
-                'paths' => ['src/App/Entity'],
+                'paths' => [
+                    'src/App/Entity'
+                ],
             ],
         ],
     ],
