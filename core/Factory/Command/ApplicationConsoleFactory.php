@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Framework\Factory\Command;
 
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\Console\ConsoleRunner;
+use Doctrine\ORM\Tools\Console\Helper\EntityManagerHelper;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Application;
 
@@ -18,6 +21,13 @@ class ApplicationConsoleFactory
             $cli->add($container->get($command));
         }
 
+        $cli->getHelperSet()->set(
+            new EntityManagerHelper(
+                $container->get(EntityManagerInterface::class)
+            ),
+            'em'
+        );
+        ConsoleRunner::addCommands($cli);
         return $cli;
     }
 }

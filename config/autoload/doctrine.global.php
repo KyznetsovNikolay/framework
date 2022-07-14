@@ -5,6 +5,15 @@ use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\Persistence\Mapping\Driver\MappingDriverChain;
 use Roave\PsrContainerDoctrine\EntityManagerFactory;
 
+$dbConf = (require 'local.php')['pdo'];
+$url = sprintf(
+    'mysql://%s:%s@%s/%s',
+    $dbConf['user'],
+    $dbConf['pass'],
+    $dbConf['host'],
+    $dbConf['db_name'],
+);
+
 return [
     'dependencies' => [
         'factories' => [
@@ -15,7 +24,7 @@ return [
         'connection' => [
             'orm_default' => [
                 'params' => [
-                    'url' => 'mysql://docker:docker@mysql/framework'
+                    'url' => $url
                 ],
             ],
         ],
@@ -30,7 +39,7 @@ return [
                 'class' => AnnotationDriver::class,
                 'cache' => 'array',
                 'paths' => [
-                    'src/App/Entity'
+                    'src/Entity'
                 ],
             ],
         ],
