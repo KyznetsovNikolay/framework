@@ -1,8 +1,12 @@
 <?php
 
+use Doctrine\Migrations\Configuration\Configuration;
+use Doctrine\Migrations\DependencyFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 use Doctrine\Persistence\Mapping\Driver\MappingDriverChain;
+use Framework\Factory\Command\MigrateConfigurationFactory;
+use Framework\Factory\Command\MigrateDependencyFactory;
 use Roave\PsrContainerDoctrine\EntityManagerFactory;
 
 $dbConf = (require 'local.php')['pdo'];
@@ -18,7 +22,12 @@ return [
     'dependencies' => [
         'factories' => [
             EntityManagerInterface::class => EntityManagerFactory::class,
+            Configuration::class => MigrateConfigurationFactory::class,
+            DependencyFactory::class => MigrateDependencyFactory::class,
         ]
+    ],
+    'doctrine_migrations' => [
+        'em' => 'default'
     ],
     'doctrine' => [
         'connection' => [
