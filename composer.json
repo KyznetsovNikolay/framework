@@ -19,7 +19,6 @@
     "monolog/monolog": "^2.7",
     "symfony/console": "^5.4",
     "ext-pdo": "*",
-    "robmorgan/phinx": "^0.12.11",
     "fakerphp/faker": "^1.19"
   },
   "require-dev": {
