@@ -16,12 +16,21 @@ class PostRepository
         $this->pdo = $pdo;
     }
 
+    public function count(): int
+    {
+        $stmt = $this->pdo->query('SELECT COUNT(id) FROM posts');
+        return (int)$stmt->fetchColumn();
+    }
+
     /**
      * @return Post[]
      */
-    public function getAll(): array
+    public function getAll(int $offset, int $limit): array
     {
-        $stmt = $this->pdo->query('SELECT * FROM posts ORDER BY id DESC');
+        $stmt = $this->pdo->prepare('SELECT * FROM posts ORDER BY id DESC LIMIT :limit OFFSET :offset');
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
 
         return array_map([$this, 'hydratePost'], $stmt->fetchAll());
     }

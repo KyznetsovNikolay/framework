@@ -30,10 +30,16 @@
             {% for post in posts %}
                 <tr>
                     <th scope="row">{{ post.id }}</th>
-                    <td>{{ post.date|date('Y-m-d') }}</td>
                     <td><a href="{{ path('blog_show', {id: post.id}) }}">{{ post.title }}</a></td>
+                    <td>{{ post.date|date('Y-m-d') }}</td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+
+    {% include 'main/pieces/pager.html.twig' with {
+        'pager': pager,
+        'main_route': 'blog',
+        'route': 'blog_page',
+    } %}
 {% endblock %}

@@ -15,6 +15,7 @@ use App\Controller\IndexAction as HomeAction;
 $app->get('home', '/', HomeAction::class);
 $app->get('about', '/about', AboutAction::class);
 $app->get('blog', '/blog', IndexAction::class);
+$app->get('blog_page', '/blog/page/{page}', IndexAction::class, ['tokens' => ['page' => '\d+']]);
 $app->get('cabinet', '/cabinet', CabinetAction::class);
 $app->get('blog_show', '/blog/{id}', ShowAction::class, ['tokens' => ['id' => '\d+']]);
 
